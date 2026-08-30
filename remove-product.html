@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remove Product - Admin</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fdfdfd;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      background-color: #8b5c2c;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    .navbar .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+    .navbar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .navbar ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    .remove-btn {
+      background: #c0392b;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .remove-btn:hover {
+      background: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Nile & Bean Admin</div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h2>Remove Products</h2>
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>Name</th><th>Price</th><th>Category</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Products will be listed here -->
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    const tableBody = document.querySelector("#productTable tbody");
+
+    function loadProducts() {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      tableBody.innerHTML = "";
+      products.forEach((p, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.price}</td>
+          <td>${p.category}</td>
+          <td><button class="remove-btn" onclick="removeProduct(${index})">Remove</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function removeProduct(index) {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.splice(index, 1);
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts();
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProducts);
+  </script>
+</body>
+</html>

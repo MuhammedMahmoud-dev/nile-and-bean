@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Reviews - Nile & Bean</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #fdfdfd;
+        margin: 0;
+        padding: 0;
+      }
+      .navbar {
+        background-color: #8b5c2c;
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+      }
+      .navbar .logo {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.5rem;
+      }
+      .navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        gap: 1.5rem;
+      }
+      .navbar ul li a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .navbar ul li a:hover {
+        text-decoration: underline;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .section-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2rem;
+        text-align: center;
+        color: #3d3d3d;
+        margin-bottom: 2rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+      }
+      th {
+        background-color: #f3f3f3;
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      footer {
+        text-align: center;
+        padding: 1rem;
+        margin-top: 3rem;
+        background-color: #f0f0f0;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">Nile & Bean Admin</div>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="logout.html">Logout</a></li>
+      </ul>
+    </nav>
+
+    <main class="container">
+      <h2 class="section-title">View Reviews</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Review ID</th>
+            <th>User</th>
+            <th>Product</th>
+            <th>Rating</th>
+            <th>Comment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#2001</td>
+            <td>Sarah Ali</td>
+            <td>Espresso</td>
+            <td>5</td>
+            <td>Excellent flavor and aroma!</td>
+          </tr>
+          <tr>
+            <td>#2002</td>
+            <td>Mohamed Hassan</td>
+            <td>Latte</td>
+            <td>4</td>
+            <td>Very good but a bit too hot.</td>
+          </tr>
+          <tr>
+            <td>#2003</td>
+            <td>Layla Nour</td>
+            <td>Cappuccino</td>
+            <td>3</td>
+            <td>Nice foam but lacked richness.</td>
+          </tr>
+          <tr>
+            <td>#2004</td>
+            <td>Ahmed Youssef</td>
+            <td>Mocha</td>
+            <td>5</td>
+            <td>Loved the chocolate taste!</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Nile & Bean. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

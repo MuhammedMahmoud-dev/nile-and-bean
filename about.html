@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About Us - Nile & Bean</title>
+    <meta name="description" content="Learn about our story, mission, and passion for coffee at Nile & Bean." />
+    <meta name="author" content="Muhammed Mahmoud Ahmed" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </head>
+
+  <body>
+    <div id="root">
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="navbar-logo">
+            <a href="index.html">Nile & Bean</a>
+          </div>
+          <nav class="navbar-nav">
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="menu.html">Menu</a></li>
+              <li><a href="about.html" class="active">About Us</a></li>
+            </ul>
+          </nav>
+          <div class="navbar-cart">
+            <a href="cart.html" class="cart-button">
+              <span class="cart-icon">🛒</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </div>
+          <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="cart.html">Cart</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <!-- Hero Section -->
+        <section class="hero about-hero">
+          <div class="hero-content">
+            <h1>About Nile & Bean</h1>
+            <p>Our story, our mission, and our passion for coffee</p>
+          </div>
+        </section>
+
+        <!-- Our Story Section -->
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <div class="story-grid">
+              <div class="story-text">
+                <h2>Our Story</h2>
+                <p>
+                  Nile & Bean was born from a simple idea: making coffee ordering feel as warm and personal as visiting your favorite café. We believe every cup has a story — and we want to be part of yours.
+                </p>
+                <p>
+                  What started as a small coffee cart in a busy downtown area has grown into a beloved online coffee service, but we've never lost sight of what matters most: the connection between people and the coffee they love.
+                </p>
+                <p>
+                  Every bean we source, every drink we craft, and every pastry we bake is chosen with care and attention to detail. We're committed to sustainability, quality, and creating moments of joy with every sip.
+                </p>
+              </div>
+              <div class="story-image">
+                <img 
+                  src="https://images.unsplash.com/photo-1442975631115-c4f7b05b8a2c?q=80&w=2940&auto=format&fit=crop" 
+                  alt="Coffee beans" 
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Our Values Section -->
+        <section class="coffee-section values-section">
+          <div class="coffee-container">
+            <div class="text-center">
+              <h2>Our Values</h2>
+              <p class="section-description">
+                At Nile & Bean, we're guided by a set of core principles that shape everything we do.
+              </p>
+            </div>
+            
+            <div class="values-grid">
+              <div class="value-card">
+                <h3>Quality</h3>
+                <p>
+                  We source the finest beans and ingredients, ensuring every cup meets our exacting standards.
+                </p>
+              </div>
+              <div class="value-card">
+                <h3>Community</h3>
+                <p>
+                  We believe coffee brings people together, creating moments of connection and conversation.
+                </p>
+              </div>
+              <div class="value-card">
+                <h3>Sustainability</h3>
+                <p>
+                  We're committed to environmentally responsible practices throughout our supply chain.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Founder and Contact Form Section -->
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <div class="contact-grid">
+              <div class="founder-info">
+                <h2>Meet Our Founder</h2>
+                <p>
+                  Muhammed Mahmoud Ahmed founded Nile & Bean with a passion for creating a more personal coffee experience. With years of experience in the coffee industry, Muhammed recognized that what people loved most about their local cafés wasn't just the coffee—it was the feeling of being welcomed and known.
+                </p>
+                <p>
+                  Nile & Bean is the realization of his vision to bring that same warmth and personal touch to online ordering, making sure that convenience doesn't have to come at the cost of connection.
+                </p>
+                <div class="contact-info">
+                  <h3>Contact Information:</h3>
+                  <ul>
+                    <li>Phone: +20 1125301065</li>
+                    <li>Email: moo7ameed222666@gmail.com</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div class="contact-form">
+                <h2>Get In Touch</h2>
+                <form id="contactForm">
+                  <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" class="text-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="text-input" required>
+                  </div>
+                  <div class="form-group">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <label for="password">Password</label>
+                  <a href="reset-password.html" style="color: #007bff; font-size: 14px; text-decoration: none;">
+                  Forgot Password?
+                  </a>
+                  </div>
+                  <input type="password" id="password" name="password" class="text-input" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="message">What do you think about us</label>
+                    <textarea id="message" name="message" class="text-input" required></textarea>
+                  </div>
+                  <button type="submit" class="button full-width">Login</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="coffee-container">
+          <div class="footer-grid">
+            <div class="footer-column">
+              <h3>Nile & Bean</h3>
+              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
+              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About Us</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Team</h3>
+              <ul>
+                <li>Muhammed Mahmoud Ahmed</li>
+                <li>Mohammed Mahmood Hamed</li>
+                <li>Mostafa Mohamed</li>
+                <li>Aliaa Nagdy</li>
+                <li>Menna Ahmed Reda</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script src="js/main.js"></script>
+    <script src="js/about.js"></script>
+  </body>
+</html>

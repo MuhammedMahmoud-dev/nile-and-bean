@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nile & Bean - Your Friendly Online Coffee Shop</title>
+    <meta name="description" content="Order coffee, tea and pastries online for pickup or delivery. Nile & Bean brings the café experience to your door." />
+    <meta name="author" content="Muhammed Mahmoud Ahmed" />
+
+    <meta property="og:title" content="Nile & Bean - Your Friendly Online Coffee Shop" />
+    <meta property="og:description" content="Order coffee, tea and pastries online for pickup or delivery. Nile & Bean brings the café experience to your door." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@lovable_dev" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </head>
+
+  <body>
+    <div id="root">
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="navbar-logo">
+            <a href="index.html">Nile & Bean</a>
+          </div>
+          <nav class="navbar-nav">
+            <ul>
+              <li><a href="index.html" class="active">Home</a></li>
+              <li><a href="menu.html">Menu</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="admin.html">Admin</a></li>
+            </ul>
+          </nav>
+          <div class="navbar-cart">
+            <a href="cart.html" class="cart-button">
+              <span class="cart-icon">🛒</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </div>
+          <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="cart.html">Cart</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <!-- Hero Section -->
+        <section class="hero">
+          <div class="hero-content">
+            <h1>Fresh Brews, Friendly Vibes</h1>
+            <p>Artisanal coffee, handcrafted with care. Order ahead and skip the line!</p>
+            <a href="menu.html" class="hero-button">Order Now</a>
+          </div>
+        </section>
+
+        <!-- Welcome Section -->
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <div class="text-center">
+              <h2>Welcome to Nile & Bean</h2>
+              <p>
+                Your friendly online coffee shop where every cup has a story. From perfectly pulled espressos to artisanal pastries, we bring the café experience to your door.
+              </p>
+            </div>
+            
+            <div class="features-grid">
+              <div class="feature-card">
+                <h3>Carefully Sourced</h3>
+                <p>
+                  We source our coffee beans from sustainable farms around the world, ensuring the highest quality in every cup.
+                </p>
+              </div>
+              <div class="feature-card">
+                <h3>Expertly Crafted</h3>
+                <p>
+                  Our baristas are trained to prepare your drinks with precision and care, consistently delivering the perfect flavor.
+                </p>
+              </div>
+              <div class="feature-card">
+                <h3>Conveniently Delivered</h3>
+                <p>
+                  Order ahead for pickup or have your favorites delivered to your doorstep at your convenience.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Featured Products Section -->
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <h2 class="section-title">Featured Drinks & Treats</h2>
+            <div class="products-grid" id="featuredProducts">
+              <!-- Products will be loaded with JavaScript -->
+            </div>
+          </div>
+        </section>
+        
+        <!-- Specials Section -->
+        <section class="coffee-section specials-section">
+          <div class="coffee-container text-center">
+            <h2>Today's Specials</h2>
+            <p>Discover our limited-time offerings and seasonal favorites</p>
+            <div class="specials-grid" id="specialProducts">
+              <!-- Specials will be loaded with JavaScript -->
+            </div>
+          </div>
+        </section>
+        
+        <!-- Our Story Section -->
+        <section class="coffee-section">
+          <div class="coffee-container story-container">
+            <div class="story-image">
+              <img 
+                src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?q=80&w=2178&auto=format&fit=crop" 
+                alt="Nile & Bean atmosphere" 
+              />
+            </div>
+            <div class="story-content">
+              <h2>Our Story</h2>
+              <p>
+                Nile & Bean was born from a simple idea: making coffee ordering feel as warm and personal as visiting your favorite café. We believe every cup has a story — and we want to be part of yours.
+              </p>
+              <a href="about.html" class="button outline-button">Learn More</a>
+            </div>
+          </div>
+        </section>
+        
+        <!-- Call to Action -->
+        <section class="coffee-section cta-section">
+          <div class="coffee-container text-center">
+            <h2>Ready to Order?</h2>
+            <p>Browse our full menu and customize your perfect drink</p>
+            <a href="menu.html" class="button light-button">View Full Menu</a>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="coffee-container">
+          <div class="footer-grid">
+            <div class="footer-column">
+              <h3>Nile & Bean</h3>
+              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
+              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About Us</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script src="js/main.js"></script>
+  </body>
+</html>

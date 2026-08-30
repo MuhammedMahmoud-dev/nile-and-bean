@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu - Nile & Bean</title>
+    <meta name="description" content="Discover our handcrafted drinks and freshly baked pastries. Nile & Bean brings the café experience to your door." />
+    <meta name="author" content="Muhammed Mahmoud Ahmed" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </head>
+
+  <body>
+    <div id="root">
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="navbar-logo">
+            <a href="index.html">Nile & Bean</a>
+          </div>
+          <nav class="navbar-nav">
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="menu.html" class="active">Menu</a></li>
+              <li><a href="about.html">About Us</a></li>
+            </ul>
+          </nav>
+          <div class="navbar-cart">
+            <a href="cart.html" class="cart-button">
+              <span class="cart-icon">🛒</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </div>
+          <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="cart.html">Cart</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <!-- Hero Section -->
+        <section class="hero menu-hero">
+          <div class="hero-content">
+            <h1>Our Menu</h1>
+            <p>Discover our handcrafted drinks and freshly baked pastries</p>
+          </div>
+        </section>
+
+        <!-- Menu Categories -->
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <div class="category-filters">
+              <button class="category-button active" data-category="all">All Items</button>
+              <button class="category-button" data-category="coffee">Coffee</button>
+              <button class="category-button" data-category="tea">Tea</button>
+              <button class="category-button" data-category="pastry">Pastries</button>
+              <button class="category-button" data-category="seasonal">Seasonal Specials</button>
+            </div>
+            
+            <h2 class="section-title" id="categoryTitle">All Items</h2>
+            
+            <div class="products-grid" id="menuProducts">
+              <!-- Products will be loaded with JavaScript -->
+            </div>
+            
+            <div id="noProductsMessage" class="no-products hidden">
+              <p>No products found in this category</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="coffee-container">
+          <div class="footer-grid">
+            <div class="footer-column">
+              <h3>Nile & Bean</h3>
+              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
+              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About Us</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Team</h3>
+              <ul>
+                <li>Muhammed Mahmoud Ahmed</li>
+                <li>Mohammed Mahmood Hamed</li>
+                <li>Mostafa Mohamed</li>
+                <li>Aliaa Nagdy</li>
+                <li>Menna Ahmed Reda</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script src="js/main.js"></script>
+    <script src="js/menu.js"></script>
+  </body>
+</html>

@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Product - Admin</title>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fdfdfd;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar {
+      background-color: #8b5c2c;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+    .navbar .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+    .navbar ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .navbar ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h2 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+    form {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    input, select, button {
+      display: block;
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #8b5c2c;
+      color: white;
+      font-weight: bold;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a96a33;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    .delete-btn {
+      background: #c0392b;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">Nile & Bean Admin</div>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="logout.html">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h2>Add New Product</h2>
+    <form id="addProductForm">
+      <input type="text" id="name" placeholder="Product Name" required />
+      <input type="number" id="price" placeholder="Price" required />
+      <select id="category" required>
+        <option value="">Select Category</option>
+        <option value="Coffee">Coffee</option>
+        <option value="Tea">Tea</option>
+        <option value="Juice">Juice</option>
+      </select>
+      <button type="submit">Add Product</button>
+    </form>
+
+    <table id="productTable">
+      <thead>
+        <tr>
+          <th>Name</th><th>Price</th><th>Category</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Products will be shown here -->
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    const form = document.getElementById("addProductForm");
+    const tableBody = document.querySelector("#productTable tbody");
+
+    function loadProducts() {
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      tableBody.innerHTML = "";
+      products.forEach(p => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.price}</td>
+          <td>${p.category}</td>
+          <td><button class="delete-btn" onclick="deleteProduct('${p.name}')">Delete</button></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function deleteProduct(name) {
+      let products = JSON.parse(localStorage.getItem("products")) || [];
+      products = products.filter(p => p.name !== name);
+      localStorage.setItem("products", JSON.stringify(products));
+      loadProducts();
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const category = document.getElementById("category").value;
+
+      if (!name || !price || !category) return;
+
+      const newProduct = { name, price, category };
+      const products = JSON.parse(localStorage.getItem("products")) || [];
+      products.push(newProduct);
+      localStorage.setItem("products", JSON.stringify(products));
+
+      form.reset();
+      loadProducts();
+    });
+
+    // Load existing products on page load
+    document.addEventListener("DOMContentLoaded", loadProducts);
+  </script>
+</body>
+</html>

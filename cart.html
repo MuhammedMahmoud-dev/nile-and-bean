@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cart - Nile & Bean</title>
+    <meta name="description" content="Review your order and checkout at Nile & Bean." />
+    <meta name="author" content="Muhammed Mahmoud Ahmed" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
+  </head>
+
+  <body>
+    <div id="root">
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="navbar-logo">
+            <a href="index.html">Nile & Bean</a>
+          </div>
+          <nav class="navbar-nav">
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="menu.html">Menu</a></li>
+              <li><a href="about.html">About Us</a></li>
+            </ul>
+          </nav>
+          <div class="navbar-cart">
+            <a href="cart.html" class="cart-button active">
+              <span class="cart-icon">🛒</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </div>
+          <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="cart.html">Cart</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <section class="coffee-section">
+          <div class="coffee-container">
+            <h1 class="page-title" id="pageTitle">Your Cart</h1>
+            
+            <!-- Empty Cart Message -->
+            <div id="emptyCart" class="empty-cart hidden">
+              <h2>Your Cart is Empty</h2>
+              <p>Looks like you haven't added any items to your cart yet.</p>
+              <a href="menu.html" class="button">Browse Menu</a>
+            </div>
+            
+            <!-- Cart Content -->
+            <div id="cartContent" class="cart-content">
+              <div class="cart-grid">
+                <!-- Cart Items Column -->
+                <div class="cart-items">
+                  <div id="cartItemsList">
+                    <!-- Cart items will be loaded with JavaScript -->
+                  </div>
+                  
+                  <div class="cart-actions">
+                    <button id="clearCartButton" class="button outline-button">Clear Cart</button>
+                    <a href="menu.html" class="button outline-button">Continue Shopping</a>
+                  </div>
+                </div>
+                
+                <!-- Order Summary Column -->
+                <div class="cart-summary">
+                  <div class="summary-card">
+                    <h2>Order Summary</h2>
+                    <div class="summary-details">
+                      <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span id="subtotal">$0.00</span>
+                      </div>
+                      <div class="summary-line">
+                        <span>Tax</span>
+                        <span id="tax">$0.00</span>
+                      </div>
+                      <div class="summary-line total-line">
+                        <span>Total</span>
+                        <span id="total">$0.00</span>
+                      </div>
+                    </div>
+                    <button id="checkoutButton" class="button full-width">Proceed to Checkout</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Checkout Form -->
+            <div id="checkoutForm" class="checkout-form hidden">
+              <div class="checkout-grid">
+                <div class="checkout-details">
+                  <!-- Order Type Section -->
+                  <div class="checkout-section">
+                    <h2>Pickup or Delivery</h2>
+                    <div class="radio-group">
+                      <div class="radio-option">
+                        <input type="radio" id="pickup" name="orderType" value="pickup" checked>
+                        <label for="pickup">Pickup in Store</label>
+                      </div>
+                      <div class="radio-option">
+                        <input type="radio" id="delivery" name="orderType" value="delivery">
+                        <label for="delivery">Delivery</label>
+                      </div>
+                    </div>
+                    
+                    <div id="deliveryAddress" class="delivery-address hidden">
+                      <h3>Delivery Address</h3>
+                      <input type="text" placeholder="Street Address" id="street" class="text-input">
+                      <div class="input-row">
+                        <input type="text" placeholder="City" id="city" class="text-input">
+                        <input type="text" placeholder="Zip Code" id="zipCode" class="text-input">
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Contact Information Section -->
+                  <div class="checkout-section">
+                    <h2>Contact Information</h2>
+                    <input type="text" placeholder="Full Name" id="fullName" class="text-input">
+                    <input type="tel" placeholder="Phone Number" id="phone" class="text-input">
+                    <input type="email" placeholder="Email Address" id="email" class="text-input">
+                  </div>
+                  
+                  <!-- Payment Method Section -->
+                  <div class="checkout-section">
+                    <h2>Payment Method</h2>
+                    <div class="radio-group">
+                      <div class="radio-option">
+                        <input type="radio" id="card" name="paymentMethod" value="card" checked>
+                        <label for="card">Credit / Debit Card</label>
+                      </div>
+                      <div class="radio-option">
+                        <input type="radio" id="applepay" name="paymentMethod" value="applepay">
+                        <label for="applepay">Apple Pay</label>
+                      </div>
+                      <div class="radio-option">
+                        <input type="radio" id="googlepay" name="paymentMethod" value="googlepay">
+                        <label for="googlepay">Google Pay</label>
+                      </div>
+                    </div>
+                    
+                    <div id="cardDetails" class="card-details">
+                      <input type="text" placeholder="Card Number" class="text-input">
+                      <div class="input-row">
+                        <input type="text" placeholder="MM / YY" class="text-input">
+                        <input type="text" placeholder="CVC" class="text-input">
+                      </div>
+                      <input type="text" placeholder="Name on Card" class="text-input">
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Checkout Summary -->
+                <div class="checkout-summary">
+                  <div class="summary-card">
+                    <h2>Order Summary</h2>
+                    <div id="checkoutItems" class="checkout-items">
+                      <!-- Checkout items will be loaded with JavaScript -->
+                    </div>
+                    <div class="summary-details">
+                      <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span id="checkoutSubtotal">$0.00</span>
+                      </div>
+                      <div class="summary-line">
+                        <span>Tax</span>
+                        <span id="checkoutTax">$0.00</span>
+                      </div>
+                      <div class="summary-line total-line">
+                        <span>Total</span>
+                        <span id="checkoutTotal">$0.00</span>
+                      </div>
+                    </div>
+                    <div class="checkout-buttons">
+                      <button id="placeOrderButton" class="button full-width">Place Order</button>
+                      <button id="backToCartButton" class="button outline-button full-width">Back to Cart</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="coffee-container">
+          <div class="footer-grid">
+            <div class="footer-column">
+              <h3>Nile & Bean</h3>
+              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
+              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About Us</a></li>
+              </ul>
+            </div>
+            
+            <div class="footer-column">
+              <h3>Team</h3>
+              <ul>
+                <li>Muhammed Mahmoud Ahmed</li>
+                <li>Mohammed Mahmood Hamed</li>
+                <li>Mostafa Moahmed</li>
+                <li>Aliaa Nagdy</li>
+                <li>Menna Ahmed Reda</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+    
+    <script src="js/main.js"></script>
+    <script src="js/cart.js"></script>
+  </body>
+</html>
