@@ -4,9 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const categoryButtons = document.querySelectorAll('.category-button');
   const categoryTitle = document.getElementById('categoryTitle');
   const noProductsMessage = document.getElementById('noProductsMessage');
-  
+
   let activeCategory = 'all';
-  
+
   // Category names mapping
   const categoryNames = {
     all: 'All Items',
@@ -15,80 +15,60 @@ document.addEventListener('DOMContentLoaded', function() {
     pastry: 'Pastries',
     seasonal: 'Seasonal Specials'
   };
-  
+
   // Filter products by category
   function filterProducts() {
-    const filteredProducts = activeCategory === 'all' 
-      ? window.NileBean.products 
-      : window.NileBean.products.filter(product => product.category === activeCategory);
-    
+    // getProducts() reads the live catalogue. This page used to read
+    // NileBean.products, a snapshot captured while the array was still empty,
+    // so every category rendered zero results (AUDIT.md section 2.1).
+    const allProducts = window.NileBean.getProducts();
+    const filteredProducts = activeCategory === 'all'
+      ? allProducts
+      : allProducts.filter(product => product.category === activeCategory);
+
     // Update category title
     if (categoryTitle) {
       categoryTitle.textContent = categoryNames[activeCategory];
     }
-    
+
     // Show/hide no products message
     if (noProductsMessage) {
-      if (filteredProducts.length === 0) {
-        noProductsMessage.classList.remove('hidden');
-      } else {
-        noProductsMessage.classList.add('hidden');
-      }
+      noProductsMessage.classList.toggle('hidden', filteredProducts.length > 0);
     }
-    
+
     // Render products
     renderProducts(filteredProducts);
   }
-  
+
   // Render products in the container
   function renderProducts(products) {
     if (!menuProductsContainer) return;
-    
+
     menuProductsContainer.innerHTML = '';
-    
+
+    // createProductCard lives in main.js. This file used to carry a
+    // near-identical second copy of it.
     products.forEach(product => {
-      const productCard = createProductCard(product);
-      menuProductsContainer.appendChild(productCard);
+      menuProductsContainer.appendChild(window.NileBean.createProductCard(product));
     });
   }
-  
-  // Create a product card element
-  function createProductCard(product) {
-    const productCard = document.createElement('div');
-    productCard.className = 'product-card';
-    productCard.innerHTML = `
-      <div class="product-image">
-        <img src="${product.image}" alt="${product.name}">
-      </div>
-      <div class="product-details">
-        <h3 class="product-title">${product.name}</h3>
-        <div class="product-price">$${product.price.toFixed(2)}</div>
-        <p class="product-description">${product.shortDescription}</p>
-        <a href="product.html?id=${product.id}" class="button">View Details</a>
-      </div>
-    `;
-    return productCard;
-  }
-  
+
   // Add event listeners to category buttons
   categoryButtons.forEach(button => {
     button.addEventListener('click', function() {
-      // Remove active class from all buttons
       categoryButtons.forEach(btn => {
         btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
       });
-      
-      // Add active class to clicked button
+
       this.classList.add('active');
-      
-      // Update active category
+      this.setAttribute('aria-pressed', 'true');
+
       activeCategory = this.getAttribute('data-category');
-      
-      // Filter products
       filterProducts();
     });
   });
-  
+
   // Initial filter
   filterProducts();
 });

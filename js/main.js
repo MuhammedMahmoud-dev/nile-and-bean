@@ -1,62 +1,125 @@
+// Nile & Bean - shared application state and helpers.
+//
+// This module is the single owner of cart and catalogue state. Other scripts
+// reach it through the accessor functions on window.NileBean and must not keep
+// their own copies: a second copy drifts out of sync with this one the moment
+// either is mutated (AUDIT.md section 2.2).
 
-// Global variables
-const cart = JSON.parse(localStorage.getItem('nilebeanCart')) || [];
-let products = [];
+const CART_STORAGE_KEY = 'nilebeanCart';
 
-// DOM Elements
-const cartCountElement = document.getElementById('cartCount');
-const mobileMenuButton = document.getElementById('mobileMenuButton');
-const mobileMenu = document.getElementById('mobileMenu');
-const currentYearElements = document.querySelectorAll('#currentYear');
+// ---------------------------------------------------------------------------
+// Storage helpers
+// ---------------------------------------------------------------------------
+// Every localStorage read goes through readJSON. A malformed value used to
+// throw at the top of this file, aborting the whole script and leaving
+// window.NileBean undefined, which blanked every page (AUDIT.md section 6.4).
 
-// Initialize the app
-document.addEventListener('DOMContentLoaded', function() {
-  // Set current year in footer
-  const currentYear = new Date().getFullYear();
-  currentYearElements.forEach(el => {
-    el.textContent = currentYear;
-  });
-  
-  // Update cart count
-  updateCartCount();
-  
-  // Mobile menu toggle
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function() {
-      mobileMenu.classList.toggle('active');
-    });
+function readJSON(key, fallback) {
+  let raw;
+  try {
+    raw = localStorage.getItem(key);
+  } catch (err) {
+    // Storage can be unavailable entirely: private mode, disabled site data.
+    console.warn(`localStorage is unavailable; continuing without it (${err.message})`);
+    return fallback;
   }
-  
-  // Fetch products data
-  fetchProducts();
-});
 
-// Cart Functions
+  if (raw === null) return fallback;
+
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed === null || parsed === undefined ? fallback : parsed;
+  } catch (err) {
+    console.warn(`Discarding corrupt localStorage entry "${key}": ${err.message}`);
+    try {
+      localStorage.removeItem(key);
+    } catch (_) {
+      /* nothing further we can do */
+    }
+    return fallback;
+  }
+}
+
+function writeJSON(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (err) {
+    // Most likely a quota error, or site data disabled.
+    console.error(`Could not save "${key}": ${err.message}`);
+    showToast('Your browser is blocking storage, so this could not be saved.');
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Cart state - one array, owned here
+// ---------------------------------------------------------------------------
+
+let cart = readJSON(CART_STORAGE_KEY, []);
+if (!Array.isArray(cart)) {
+  // Well-formed JSON of the wrong shape, e.g. an object left by an old build.
+  console.warn('Stored cart was not an array; starting from an empty cart.');
+  cart = [];
+}
+
+// Call this on every read. Holding the returned array across a mutation is
+// precisely the bug this replaces.
+function getCart() {
+  return cart;
+}
+
+// Price of one unit including the chosen size and extras. Entries written
+// before unitPrice existed fall back to the base price.
+function getUnitPrice(item) {
+  return typeof item.unitPrice === 'number' ? item.unitPrice : item.price;
+}
+
+function getLineTotal(item) {
+  return getUnitPrice(item) * item.quantity;
+}
+
+function getCartSubtotal() {
+  return cart.reduce((sum, item) => sum + getLineTotal(item), 0);
+}
+
+function getCartCount() {
+  return cart.reduce((total, item) => total + item.quantity, 0);
+}
+
+function persistCart() {
+  writeJSON(CART_STORAGE_KEY, cart);
+  updateCartCount();
+}
+
 function updateCartCount() {
+  const cartCountElement = document.getElementById('cartCount');
   if (cartCountElement) {
-    const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-    cartCountElement.textContent = itemCount;
+    cartCountElement.textContent = getCartCount();
   }
 }
 
 function addToCart(product, quantity = 1, options = {}) {
-  const cartItem = {
+  // Resolve the price the customer was actually shown and store it on the
+  // line. Previously only the base price survived, so size and extras were
+  // priced in the UI and then silently dropped (AUDIT.md section 2.3).
+  const unitPrice = calculateTotalPrice(product, options.size, options.extras || []);
+
+  cart.push({
     ...product,
     quantity,
-    ...options
-  };
-  
-  cart.push(cartItem);
-  localStorage.setItem('nilebeanCart', JSON.stringify(cart));
-  updateCartCount();
+    ...options,
+    unitPrice
+  });
+
+  persistCart();
   showToast(`Added ${product.name} to cart`);
 }
 
 function updateCartItem(index, updates) {
   if (index >= 0 && index < cart.length) {
     cart[index] = { ...cart[index], ...updates };
-    localStorage.setItem('nilebeanCart', JSON.stringify(cart));
-    updateCartCount();
+    persistCart();
   }
 }
 
@@ -64,23 +127,56 @@ function removeCartItem(index) {
   if (index >= 0 && index < cart.length) {
     const removedItem = cart[index];
     cart.splice(index, 1);
-    localStorage.setItem('nilebeanCart', JSON.stringify(cart));
-    updateCartCount();
+    persistCart();
     showToast(`Removed ${removedItem.name} from cart`);
   }
 }
 
 function clearCart() {
   cart.length = 0;
-  localStorage.setItem('nilebeanCart', JSON.stringify(cart));
-  updateCartCount();
+  persistCart();
   showToast('Cart cleared');
 }
 
-// Products Data & Rendering
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+let products = [];
+
+// Read through this, never through a captured reference. fetchProducts()
+// replaces the array, so a snapshot taken at load time stays empty forever
+// (AUDIT.md section 2.1).
+function getProducts() {
+  return products;
+}
+
+function getProductById(id) {
+  return products.find(product => product.id === id);
+}
+
+function calculateTotalPrice(product, size = null, extras = []) {
+  let total = product.price;
+
+  if (size && product.options?.sizes) {
+    const sizeOption = product.options.sizes.find(s => s.name === size);
+    if (sizeOption) total += sizeOption.price;
+  }
+
+  if (extras.length > 0 && product.options?.extras) {
+    extras.forEach(extra => {
+      const extraOption = product.options.extras.find(e => e.name === extra);
+      if (extraOption) total += extraOption.price;
+    });
+  }
+
+  return total;
+}
+
 function fetchProducts() {
   // In a real app, this would be an API call
   products = [
+
     {
       id: "espresso",
       name: "Espresso",
@@ -266,47 +362,17 @@ function fetchProducts() {
       },
       featured: true,
       popular: true
-    }
-  ];
+    }  ];
 
-  // Render featured products on homepage
   renderFeaturedProducts();
   renderSpecialProducts();
 }
 
-function renderFeaturedProducts() {
-  const featuredProductsContainer = document.getElementById('featuredProducts');
-  if (!featuredProductsContainer) return;
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
 
-  const featuredProducts = products.filter(product => product.featured);
-  featuredProductsContainer.innerHTML = '';
-
-  featuredProducts.forEach(product => {
-    const productElement = createProductCard(product);
-    featuredProductsContainer.appendChild(productElement);
-  });
-}
-
-function renderSpecialProducts() {
-  const specialProductsContainer = document.getElementById('specialProducts');
-  if (!specialProductsContainer) return;
-
-  const specialProducts = products.filter(product => product.featured).slice(0, 2);
-  specialProductsContainer.innerHTML = '';
-
-  specialProducts.forEach(product => {
-    const specialCard = document.createElement('div');
-    specialCard.className = 'special-card';
-    specialCard.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>${product.shortDescription}</p>
-      <div class="special-price">$${product.price.toFixed(2)}</div>
-      <a href="product.html?id=${product.id}" class="button light-button">Order Now</a>
-    `;
-    specialProductsContainer.appendChild(specialCard);
-  });
-}
-
+// The one definition. menu.js used to carry a near-identical copy of this.
 function createProductCard(product) {
   const productCard = document.createElement('div');
   productCard.className = 'product-card';
@@ -324,78 +390,102 @@ function createProductCard(product) {
   return productCard;
 }
 
-// Utility Functions
+function renderFeaturedProducts() {
+  const container = document.getElementById('featuredProducts');
+  if (!container) return;
+
+  container.innerHTML = '';
+  getProducts()
+    .filter(product => product.featured)
+    .forEach(product => container.appendChild(createProductCard(product)));
+}
+
+function renderSpecialProducts() {
+  const container = document.getElementById('specialProducts');
+  if (!container) return;
+
+  container.innerHTML = '';
+  getProducts()
+    .filter(product => product.featured)
+    .slice(0, 2)
+    .forEach(product => {
+      const specialCard = document.createElement('div');
+      specialCard.className = 'special-card';
+      specialCard.innerHTML = `
+        <h3>${product.name}</h3>
+        <p>${product.shortDescription}</p>
+        <div class="special-price">$${product.price.toFixed(2)}</div>
+        <a href="product.html?id=${product.id}" class="button light-button">Order Now</a>
+      `;
+      container.appendChild(specialCard);
+    });
+}
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+
 function showToast(message) {
   const toast = document.createElement('div');
   toast.className = 'toast';
+  toast.setAttribute('role', 'status');
   toast.textContent = message;
   document.body.appendChild(toast);
-  
-  // Add styles for the toast
-  toast.style.position = 'fixed';
-  toast.style.bottom = '20px';
-  toast.style.right = '20px';
-  toast.style.backgroundColor = 'rgba(50, 50, 50, 0.9)';
-  toast.style.color = 'white';
-  toast.style.padding = '12px 20px';
-  toast.style.borderRadius = '4px';
-  toast.style.zIndex = '1000';
-  toast.style.opacity = '0';
-  toast.style.transform = 'translateY(20px)';
-  toast.style.transition = 'opacity 0.3s, transform 0.3s';
-  
-  // Show the toast
+
+  // Force a style flush so the transition off the base class actually runs.
+  // requestAnimationFrame would be throttled in a background tab, leaving the
+  // toast permanently invisible.
+  void toast.offsetWidth;
+  toast.classList.add('toast-visible');
+
   setTimeout(() => {
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
-  }, 10);
-  
-  // Hide and remove the toast
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(20px)';
-    setTimeout(() => {
-      document.body.removeChild(toast);
-    }, 300);
+    toast.classList.remove('toast-visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
   }, 3000);
 }
 
-function getProductById(id) {
-  return products.find(product => product.id === id);
-}
+// ---------------------------------------------------------------------------
+// Public interface
+// ---------------------------------------------------------------------------
+// Accessors only. Exporting the arrays themselves is what broke the menu page:
+// a snapshot captured here never sees data loaded afterwards.
 
-function calculateTotalPrice(product, size = null, extras = []) {
-  let total = product.price;
-  
-  // Add size price
-  if (size && product.options?.sizes) {
-    const sizeOption = product.options.sizes.find(s => s.name === size);
-    if (sizeOption) {
-      total += sizeOption.price;
-    }
-  }
-  
-  // Add extras price
-  if (extras.length > 0 && product.options?.extras) {
-    extras.forEach(extra => {
-      const extraOption = product.options.extras.find(e => e.name === extra);
-      if (extraOption) {
-        total += extraOption.price;
-      }
-    });
-  }
-  
-  return total;
-}
-
-// Export functions for use in other files
 window.NileBean = {
-  products,
+  getProducts,
   getProductById,
+  createProductCard,
+  calculateTotalPrice,
+  getCart,
+  getCartCount,
+  getCartSubtotal,
+  getUnitPrice,
+  getLineTotal,
   addToCart,
   updateCartItem,
   removeCartItem,
   clearCart,
-  calculateTotalPrice,
   showToast
 };
+
+// ---------------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------------
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('#currentYear').forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+
+  updateCartCount();
+
+  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (mobileMenuButton && mobileMenu) {
+    mobileMenuButton.addEventListener('click', function () {
+      const isOpen = mobileMenu.classList.toggle('active');
+      mobileMenuButton.setAttribute('aria-expanded', String(isOpen));
+    });
+  }
+
+  fetchProducts();
+});

@@ -685,4 +685,145 @@ comments"*. There is no management capability; the page is a static table.
 
 Fixes are recorded here as they land. Each entry states the root cause and the fix.
 
-*(Phase 2 onward — appended below as work proceeds.)*
+### Phase 1 — generated artifacts and dead code removed
+
+96 files and 16,257 lines deleted, none of them reachable from the running site:
+the `src/` React scaffold (73 files), the root-level duplicates of `js/` and `css/`
+(6 files, both differences in §1.3 recorded before deletion), the scaffold-only
+configs and both lockfiles (10 files), and the committed `__pycache__` artifacts.
+The `cdn.gpteng.co` injector was stripped from all five public pages, and the
+Lovable Open Graph and Twitter tags were replaced with tags describing this project,
+using an image rendered at 1200×630 from the site's own tokens and typefaces
+(`assets/og-image.source.html` carries the source and the regeneration command).
+
+`package.json` — previously the generated `vite_react_shadcn_ts` manifest with 60
+dependencies — is now a minimal manifest carrying only `vitest` and `jsdom` for the
+Phase 4 frontend tests.
+
+**Verified:** `git grep` for `lovable|gpteng|gptengineer|shadcn|vite_react_shadcn_ts`
+returns hits only inside this file, which documents them by design.
+
+### Phase 2 — the structural bugs
+
+Each fix was reproduced as broken beforehand (§2) and re-verified as fixed in a
+browser afterwards. Verification output is quoted per item.
+
+#### 2.1 fix — menu page renders the catalogue
+
+**Root cause.** `window.NileBean` exported the `products` *array* by value while it
+was still empty. `fetchProducts()` later rebound the variable to a new array, so the
+export was a permanently-empty snapshot.
+
+**Fix.** `js/main.js` no longer exports any array. It exports `getProducts()`, which
+reads the live binding at call time, and the `products` property was removed from the
+public interface entirely — so a stale read is now impossible rather than silently
+empty. `js/menu.js` calls `getProducts()` on each filter. The fix is at the source, in
+`main.js`; `menu.js` was not patched around it.
+
+**[EXECUTED]** — clicking through every category on `/menu.html`:
+
+```json
+{ "all_items": 9, "tea": 2, "pastry": 2, "seasonal": 1, "back_to_all": 9,
+  "empty_msg_hidden": true }
+```
+
+#### 2.2 fix — one cart, one owner
+
+**Root cause.** `js/main.js` and `js/cart.js` each ran
+`JSON.parse(localStorage.getItem('nilebeanCart'))`, producing two independent arrays.
+Handlers mutated one and re-rendered from the other.
+
+**Fix.** `js/main.js` owns the only cart array. `js/cart.js` holds no copy; it reads
+`window.NileBean.getCart()` fresh on every render and every handler. All mutation goes
+through `addToCart` / `updateCartItem` / `removeCartItem` / `clearCart`, which persist
+and refresh the header badge through a single `persistCart()`. Emptying the cart now
+also clears the rendered rows rather than only hiding their container. Event listeners
+were moved out of `initCartPage()`, which re-runs, and are attached once.
+
+**[EXECUTED]** — three `+` clicks then one `−`, on a line whose unit price is $5.49:
+
+```json
+{ "before":  { "shown_qty": "1", "line_price": "$5.49",  "total": "$5.93"  },
+  "after_three_increments": { "shown_qty": "4", "stored_qty": 4,
+                              "line_price": "$21.96", "total": "$23.72" },
+  "after_one_decrement":    { "shown_qty": "3", "line_price": "$16.47" } }
+```
+
+Previously three clicks produced no visible change and a single stored increment.
+Removing the last line now reaches the empty state without a reload:
+`{ "rows_in_dom": 0, "empty_state_visible": true, "badge": "0" }`.
+
+#### 2.3 fix — the customer is charged the price they were shown
+
+**Root cause.** `product.js` computed the option-inclusive unit price for display and
+then passed the untouched `product` object to `addToCart`, so only the base price
+reached the cart line.
+
+**Fix.** `addToCart` now calls `calculateTotalPrice` itself and stores the result as
+`unitPrice` on the cart line. `getUnitPrice()` falls back to `price` for entries
+written before this field existed, so carts already in a customer's browser still
+render. All money now flows through `getLineTotal()` / `getCartSubtotal()`.
+
+**[EXECUTED]** — Latte, size "Large" (+$1.00), extra "Extra Shot" (+$0.99), qty 2:
+
+```json
+{ "base_price": 4.49, "stored_unitPrice": 6.48, "qty": 2,
+  "line_shown": "$12.96", "subtotal": "$12.96", "total": "$14.00",
+  "options_rendered": "Size: Large  Milk: Oat  Extras: Extra Shot" }
+```
+
+$6.48 was displayed on the product page and $6.48 is charged. The same case
+previously displayed $6.48 and charged $4.49.
+
+#### 2.4 fix — filenames normalised to lowercase
+
+`Admin.html`, `Manage-users.html` and `View-Reviews.html` were renamed to
+`admin.html`, `manage-users.html` and `view-reviews.html` (via a two-step `git mv`,
+since a case-only rename is a no-op on a case-insensitive filesystem). Every link
+already used the lowercase form, so no href needed changing.
+
+**[EXECUTED]** — every `href="*.html"` in the project checked against the case-exact
+`git ls-files` listing: 12 of 14 resolve exactly. The two that do not are
+`login.html` and `logout.html`, which are still absent and are built in Phase 3.
+
+#### 2.5 fix — every localStorage read is guarded
+
+**Root cause.** `JSON.parse(...) || []` handles a missing key but not malformed JSON,
+which throws before `||` is evaluated. Thrown at the top of `main.js`, it aborted the
+script, left `window.NileBean` undefined and blanked every page.
+
+**Fix.** All reads go through `readJSON(key, fallback)` in `js/main.js`, which catches
+parse failures, drops the corrupt key, and returns the fallback. It also catches
+`localStorage` being unavailable outright (private mode, site data disabled), and a
+matching `writeJSON` reports quota failures to the user instead of throwing. A
+non-array cart of otherwise valid JSON is also rejected. `add-product.html` and
+`remove-product.html`, which do not load `main.js`, each received an equivalent
+`readStoredProducts()` helper — 5 unguarded parses replaced in total.
+
+**[EXECUTED]** — with `localStorage.nilebeanCart` set to `'{corrupt'`:
+
+```json
+{ "fix5_threw": null, "fix5_NileBean_still_defined_with_n_methods": 14,
+  "fix5_corrupt_key_removed": null }
+```
+
+Previously identical conditions produced
+`SyntaxError: Expected property name or '}' in JSON at position 1` and no
+`window.NileBean` at all.
+
+#### 2.6 fix — one `createProductCard`
+
+The near-duplicate definition in `js/menu.js` was deleted. The single definition in
+`js/main.js` is exported and used by the home page and the menu page alike.
+
+#### Carried in alongside 2.6 — the toast
+
+`showToast` applied 12 inline styles imperatively. It now toggles a `.toast` /
+`.toast-visible` pair defined in `css/styles.css`, sets `role="status"`, and honours
+`prefers-reduced-motion`. Reveal uses a forced style flush rather than
+`requestAnimationFrame`, which is throttled in a background tab and would have left
+the toast permanently invisible there.
+
+This item is listed under Phase 4 in the remediation brief. It was brought forward
+because rewriting `main.js` for the fixes above necessarily touched `showToast`, and
+leaving it half-converted would have shipped an unstyled toast through Phase 3.

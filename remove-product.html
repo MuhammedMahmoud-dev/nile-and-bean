@@ -97,10 +97,23 @@
   </main>
 
   <script>
+    // Reads localStorage defensively: a malformed value used to throw and
+    // abort the whole script (AUDIT.md section 6.4).
+    function readStoredProducts() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem("products"));
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (err) {
+        console.warn("Discarding corrupt \"products\" entry: " + err.message);
+        try { localStorage.removeItem("products"); } catch (_) {}
+        return [];
+      }
+    }
+
     const tableBody = document.querySelector("#productTable tbody");
 
     function loadProducts() {
-      const products = JSON.parse(localStorage.getItem("products")) || [];
+      const products = readStoredProducts();
       tableBody.innerHTML = "";
       products.forEach((p, index) => {
         const row = document.createElement("tr");
@@ -115,7 +128,7 @@
     }
 
     function removeProduct(index) {
-      const products = JSON.parse(localStorage.getItem("products")) || [];
+      const products = readStoredProducts();
       products.splice(index, 1);
       localStorage.setItem("products", JSON.stringify(products));
       loadProducts();

@@ -975,3 +975,33 @@ footer {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Toast
+   Previously built by assigning 12 inline styles in JS. The JS now only
+   toggles .toast-visible. */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 40px));
+  padding: 12px 20px;
+  border-radius: var(--border-radius);
+  background-color: rgba(50, 50, 50, 0.95);
+  color: var(--white);
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.toast-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: none;
+  }
+}
