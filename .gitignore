@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local database (created by migrations + seed, never committed)
+*.db
+*.sqlite3
+
+# Environment
+.env
+
+# Local tooling
+.claude/

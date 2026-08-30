@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--
+  Source for assets/og-image.png (1200x630).
+  Uses the same design tokens and typefaces as css/styles.css.
+  Regenerate with:
+    playwright screenshot --viewport-size=1200,630 assets/og-image.source.html assets/og-image.png
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --coffee-dark: #403020;
+    --coffee-medium: #6b4f35;
+    --caramel: #c87f0a;
+    --cream: #f5f5dc;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px; height: 630px;
+    background: linear-gradient(135deg, var(--coffee-dark) 0%, var(--coffee-medium) 100%);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, Segoe UI, sans-serif;
+    display: flex; flex-direction: column;
+    justify-content: center;
+    padding: 0 96px;
+    position: relative; overflow: hidden;
+  }
+  /* faint steam arcs, echoing the cup motif */
+  .mark {
+    position: absolute; right: -60px; top: 50%; transform: translateY(-50%);
+    width: 520px; height: 520px; opacity: 0.09;
+  }
+  .rule { width: 88px; height: 6px; background: var(--caramel); border-radius: 3px; margin-bottom: 34px; }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700; font-size: 92px; line-height: 1.05;
+    letter-spacing: -0.015em; margin-bottom: 22px;
+  }
+  p { font-size: 30px; line-height: 1.45; max-width: 660px; color: rgba(245,245,220,0.86); }
+  .foot {
+    position: absolute; left: 96px; bottom: 56px;
+    font-size: 21px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--caramel); font-weight: 500;
+  }
+</style>
+</head>
+<body>
+  <svg class="mark" viewBox="0 0 200 200" fill="none" stroke="#f5f5dc" stroke-width="5" stroke-linecap="round">
+    <path d="M40 78h96v46a34 34 0 0 1-34 34H74a34 34 0 0 1-34-34z"/>
+    <path d="M136 92h16a20 20 0 0 1 0 40h-16"/>
+    <path d="M70 52c0-10 8-12 8-22M100 52c0-10 8-12 8-22M130 52c0-10 8-12 8-22"/>
+  </svg>
+  <div class="rule"></div>
+  <h1>Nile &amp; Bean</h1>
+  <p>Order coffee, tea and pastries online for pickup or delivery.</p>
+  <div class="foot">Fresh brews, friendly vibes</div>
+</body>
+</html>
