@@ -4,8 +4,13 @@
 // reach it through the accessor functions on window.NileBean and must not keep
 // their own copies: a second copy drifts out of sync with this one the moment
 // either is mutated (AUDIT.md section 2.2).
+//
+// The catalogue is loaded from the API. It used to be a nine-item array
+// hardcoded in this file; those nine products are now seed data for the
+// database (Backend/seed_data.json).
 
 const CART_STORAGE_KEY = 'nilebeanCart';
+const TAX_RATE = 0.08; // Display only. The server computes the authoritative total.
 
 // ---------------------------------------------------------------------------
 // Storage helpers
@@ -143,16 +148,85 @@ function clearCart() {
 // ---------------------------------------------------------------------------
 
 let products = [];
+let loadState = 'idle'; // idle | loading | ready | error
+let loadError = null;
+let readyPromise = null;
 
-// Read through this, never through a captured reference. fetchProducts()
-// replaces the array, so a snapshot taken at load time stays empty forever
-// (AUDIT.md section 2.1).
+// Read through this, never through a captured reference. The catalogue is
+// replaced when it loads, so a snapshot taken at load time would stay empty
+// forever (AUDIT.md section 2.1).
 function getProducts() {
   return products;
 }
 
 function getProductById(id) {
   return products.find(product => product.id === id);
+}
+
+function getLoadState() {
+  return { state: loadState, error: loadError };
+}
+
+// The API speaks snake_case and serialises Decimal prices as JSON strings,
+// while the option prices nested in the JSON column stay numbers. Normalise
+// both here so every page script sees one consistent shape.
+function normaliseProduct(raw) {
+  const num = value => {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  const options = raw.options ? { ...raw.options } : undefined;
+  if (options?.sizes) {
+    options.sizes = options.sizes.map(s => ({ name: s.name, price: num(s.price) }));
+  }
+  if (options?.extras) {
+    options.extras = options.extras.map(e => ({ name: e.name, price: num(e.price) }));
+  }
+
+  return {
+    id: raw.slug,
+    productId: raw.id,
+    name: raw.name,
+    image: raw.image,
+    price: num(raw.price),
+    category: raw.category,
+    shortDescription: raw.short_description || '',
+    longDescription: raw.long_description || '',
+    options,
+    featured: Boolean(raw.featured),
+    popular: Boolean(raw.popular),
+    available: raw.available !== false
+  };
+}
+
+function loadProducts() {
+  if (readyPromise) return readyPromise;
+
+  loadState = 'loading';
+  loadError = null;
+
+  readyPromise = window.NileBeanAPI.listProducts()
+    .then(raw => {
+      products = raw.map(normaliseProduct);
+      loadState = 'ready';
+      document.dispatchEvent(new CustomEvent('products:loaded'));
+      return products;
+    })
+    .catch(err => {
+      loadState = 'error';
+      loadError = err;
+      console.error('Could not load the catalogue:', err);
+      document.dispatchEvent(new CustomEvent('products:error', { detail: err }));
+      return [];
+    });
+
+  return readyPromise;
+}
+
+// Page scripts await this before rendering anything catalogue-driven.
+function whenProductsReady() {
+  return readyPromise || loadProducts();
 }
 
 function calculateTotalPrice(product, size = null, extras = []) {
@@ -170,202 +244,8 @@ function calculateTotalPrice(product, size = null, extras = []) {
     });
   }
 
-  return total;
-}
-
-function fetchProducts() {
-  // In a real app, this would be an API call
-  products = [
-
-    {
-      id: "espresso",
-      name: "Espresso",
-      image: "https://images.unsplash.com/photo-1511920170033-f8396924c348",
-      price: 2.99,
-      category: "coffee",
-      shortDescription: "Our signature espresso is bold and full-bodied",
-      longDescription: "Our signature espresso is a careful blend of Arabica beans from Ethiopia and Colombia, resulting in a bold and full-bodied flavor profile with notes of dark chocolate and caramel.",
-      options: {
-        sizes: [
-          { name: "Single", price: 0 },
-          { name: "Double", price: 1 },
-          { name: "Triple", price: 2 }
-        ],
-        extras: [
-          { name: "Extra Shot", price: 0.99 },
-          { name: "Vanilla Syrup", price: 0.50 },
-          { name: "Caramel Syrup", price: 0.50 },
-          { name: "Mocha Syrup", price: 0.50 }
-        ]
-      },
-      featured: true,
-      popular: true
-    },
-    {
-      id: "latte",
-      name: "Latte",
-      image: "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?q=80&w=2875&auto=format&fit=crop",
-      price: 4.49,
-      category: "coffee",
-      shortDescription: "Smooth espresso with steamed milk and light foam",
-      longDescription: "Our latte combines our rich espresso with smooth steamed milk and a light layer of foam, creating a perfectly balanced coffee experience that's both comforting and sophisticated.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        milk: ["Whole", "Oat", "Almond", "Soy", "No Milk"],
-        extras: [
-          { name: "Extra Shot", price: 0.99 },
-          { name: "Vanilla Syrup", price: 0.50 },
-          { name: "Caramel Syrup", price: 0.50 },
-          { name: "Mocha Syrup", price: 0.50 }
-        ]
-      },
-      featured: true,
-      popular: true
-    },
-    {
-      id: "cappuccino",
-      name: "Cappuccino",
-      image: "https://images.unsplash.com/photo-1534617580475-4439e80c4324?q=80&w=2787&auto=format&fit=crop",
-      price: 4.29,
-      category: "coffee",
-      shortDescription: "Equal parts espresso, steamed milk, and foam",
-      longDescription: "Our cappuccino follows the traditional Italian recipe with equal parts espresso, steamed milk, and milk foam. The result is a perfect balance of rich flavors and creamy textures.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        milk: ["Whole", "Oat", "Almond", "Soy", "No Milk"],
-        extras: [
-          { name: "Extra Shot", price: 0.99 },
-          { name: "Vanilla Syrup", price: 0.50 },
-          { name: "Caramel Syrup", price: 0.50 },
-          { name: "Mocha Syrup", price: 0.50 }
-        ]
-      },
-      featured: false,
-      popular: true
-    },
-    {
-      id: "americano",
-      name: "Americano",
-      image: "https://images.unsplash.com/photo-1580661962569-fa5a658896d2?q=80&w=3000&auto=format&fit=crop",
-      price: 3.29,
-      category: "coffee",
-      shortDescription: "Espresso diluted with hot water",
-      longDescription: "Our Americano starts with our signature espresso and is diluted with hot water to create a coffee that's similar in strength to drip coffee but with the unique flavor profile of espresso.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        extras: [
-          { name: "Extra Shot", price: 0.99 }
-        ]
-      },
-      featured: false,
-      popular: false
-    },
-    {
-      id: "green-tea",
-      name: "Green Tea",
-      image: "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=2940&auto=format&fit=crop",
-      price: 3.49,
-      category: "tea",
-      shortDescription: "Delicate tea with earthy, grassy notes",
-      longDescription: "Our premium green tea is sourced from the mountains of Japan. It has a delicate flavor with subtle earthy and grassy notes, providing a refreshing experience with every sip.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        extras: [
-          { name: "Honey", price: 0.30 },
-          { name: "Lemon", price: 0.30 }
-        ]
-      },
-      featured: true,
-      popular: false
-    },
-    {
-      id: "chai-latte",
-      name: "Chai Latte",
-      image: "https://images.unsplash.com/photo-1577805947697-89e18249d767?q=80&w=2893&auto=format&fit=crop",
-      price: 4.79,
-      category: "tea",
-      shortDescription: "Spiced tea blend with steamed milk",
-      longDescription: "Our Chai Latte features a house-made blend of black tea and aromatic spices including cinnamon, cardamom, and cloves, combined with steamed milk for a comforting, spiced beverage.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        milk: ["Whole", "Oat", "Almond", "Soy", "No Milk"],
-        extras: [
-          { name: "Vanilla Syrup", price: 0.50 },
-          { name: "Extra Spice", price: 0.30 }
-        ]
-      },
-      featured: true,
-      popular: true
-    },
-    {
-      id: "croissant",
-      name: "Butter Croissant",
-      image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=2726&auto=format&fit=crop",
-      price: 3.29,
-      category: "pastry",
-      shortDescription: "Flaky, buttery pastry, freshly baked",
-      longDescription: "Our classic butter croissants are made from scratch daily. The dough is laminated with European butter, creating dozens of flaky layers and a rich, buttery flavor.",
-      featured: false,
-      popular: true
-    },
-    {
-      id: "chocolate-muffin",
-      name: "Double Chocolate Muffin",
-      image: "https://images.unsplash.com/photo-1604882767135-80fdacf6e84c?q=80&w=2874&auto=format&fit=crop",
-      price: 3.79,
-      category: "pastry",
-      shortDescription: "Rich chocolate muffin with chocolate chips",
-      longDescription: "Our double chocolate muffins are made with Dutch-processed cocoa powder and filled with rich chocolate chips, creating a decadent treat that's perfect for chocolate lovers.",
-      featured: false,
-      popular: false
-    },
-    {
-      id: "pumpkin-spice",
-      name: "Pumpkin Spice Latte",
-      image: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2940&auto=format&fit=crop",
-      price: 5.49,
-      category: "seasonal",
-      shortDescription: "Our famous seasonal fall favorite",
-      longDescription: "Our Pumpkin Spice Latte combines our signature espresso with real pumpkin, warm spices like cinnamon and nutmeg, and steamed milk, topped with whipped cream and pumpkin pie spice.",
-      options: {
-        sizes: [
-          { name: "Small", price: 0 },
-          { name: "Medium", price: 0.50 },
-          { name: "Large", price: 1 }
-        ],
-        milk: ["Whole", "Oat", "Almond", "Soy", "No Milk"],
-        extras: [
-          { name: "Extra Shot", price: 0.99 },
-          { name: "Whipped Cream", price: 0.50 },
-          { name: "Extra Spice", price: 0.30 }
-        ]
-      },
-      featured: true,
-      popular: true
-    }  ];
-
-  renderFeaturedProducts();
-  renderSpecialProducts();
+  // Round to cents: 4.49 + 0.99 is 5.4799999999999995 in binary floating point.
+  return Math.round(total * 100) / 100;
 }
 
 // ---------------------------------------------------------------------------
@@ -384,15 +264,39 @@ function createProductCard(product) {
       <h3 class="product-title">${product.name}</h3>
       <div class="product-price">$${product.price.toFixed(2)}</div>
       <p class="product-description">${product.shortDescription}</p>
-      <a href="product.html?id=${product.id}" class="button">View Details</a>
+      <a href="product.html?id=${encodeURIComponent(product.id)}" class="button">View Details</a>
     </div>
   `;
   return productCard;
 }
 
+function renderMessage(container, kind, text, retry = false) {
+  if (!container) return;
+  container.innerHTML = '';
+  const box = document.createElement('div');
+  box.className = `state-message state-${kind}`;
+  box.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+  box.textContent = text;
+  if (retry) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'button';
+    button.textContent = 'Try again';
+    button.addEventListener('click', () => window.location.reload());
+    box.appendChild(document.createElement('br'));
+    box.appendChild(button);
+  }
+  container.appendChild(box);
+}
+
 function renderFeaturedProducts() {
   const container = document.getElementById('featuredProducts');
   if (!container) return;
+
+  if (loadState === 'loading') return renderMessage(container, 'loading', 'Loading the menu...');
+  if (loadState === 'error') {
+    return renderMessage(container, 'error', loadError.message, true);
+  }
 
   container.innerHTML = '';
   getProducts()
@@ -402,7 +306,7 @@ function renderFeaturedProducts() {
 
 function renderSpecialProducts() {
   const container = document.getElementById('specialProducts');
-  if (!container) return;
+  if (!container || loadState !== 'ready') return;
 
   container.innerHTML = '';
   getProducts()
@@ -415,10 +319,40 @@ function renderSpecialProducts() {
         <h3>${product.name}</h3>
         <p>${product.shortDescription}</p>
         <div class="special-price">$${product.price.toFixed(2)}</div>
-        <a href="product.html?id=${product.id}" class="button light-button">Order Now</a>
+        <a href="product.html?id=${encodeURIComponent(product.id)}" class="button light-button">Order Now</a>
       `;
       container.appendChild(specialCard);
     });
+}
+
+// ---------------------------------------------------------------------------
+// Account-aware navigation
+// ---------------------------------------------------------------------------
+
+function renderAccountNav() {
+  const slot = document.getElementById('accountNav');
+  if (!slot) return;
+
+  const api = window.NileBeanAPI;
+  const user = api.getUser();
+
+  // slot is itself the <li>; fill it rather than nesting another one.
+  slot.innerHTML = '';
+  const link = document.createElement('a');
+  if (user) {
+    link.href = 'logout.html';
+    link.textContent = `Sign out (${user.username})`;
+  } else {
+    link.href = 'login.html';
+    link.textContent = 'Sign in';
+  }
+  slot.appendChild(link);
+
+  // The Admin link is only meaningful to an administrator. The guard on the
+  // page itself is what actually enforces this; hiding the link is courtesy.
+  document.querySelectorAll('[data-admin-only]').forEach(el => {
+    el.hidden = !api.isAdmin();
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -451,9 +385,13 @@ function showToast(message) {
 // a snapshot captured here never sees data loaded afterwards.
 
 window.NileBean = {
+  TAX_RATE,
   getProducts,
   getProductById,
+  getLoadState,
+  whenProductsReady,
   createProductCard,
+  renderMessage,
   calculateTotalPrice,
   getCart,
   getCartCount,
@@ -471,12 +409,17 @@ window.NileBean = {
 // Boot
 // ---------------------------------------------------------------------------
 
+// Start the request immediately rather than waiting for DOMContentLoaded, so
+// the network round trip overlaps with parsing the rest of the page.
+loadProducts();
+
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('#currentYear').forEach(el => {
     el.textContent = new Date().getFullYear();
   });
 
   updateCartCount();
+  renderAccountNav();
 
   const mobileMenuButton = document.getElementById('mobileMenuButton');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -487,5 +430,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  fetchProducts();
+  // Paint the loading state, then the result.
+  renderFeaturedProducts();
+  whenProductsReady().then(() => {
+    renderFeaturedProducts();
+    renderSpecialProducts();
+  });
 });

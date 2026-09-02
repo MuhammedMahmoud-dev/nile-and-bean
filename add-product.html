@@ -1,197 +1,122 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Add Product - Admin</title>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #fdfdfd;
-      margin: 0;
-      padding: 0;
-    }
-    .navbar {
-      background-color: #8b5c2c;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    .navbar .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-    }
-    .navbar ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 1.5rem;
-    }
-    .navbar ul li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .container {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-    h2 {
-      text-align: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
-    form {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 2rem;
-    }
-    input, select, button {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      margin-bottom: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    button {
-      background-color: #8b5c2c;
-      color: white;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #a96a33;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-    .delete-btn {
-      background: #c0392b;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .delete-btn:hover {
-      background: #e74c3c;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">Nile & Bean Admin</div>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="logout.html">Logout</a></li>
-    </ul>
-  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Product - Nile &amp; Bean Admin</title>
+    <meta name="robots" content="noindex" />
 
-  <main class="container">
-    <h2>Add New Product</h2>
-    <form id="addProductForm">
-      <input type="text" id="name" placeholder="Product Name" required />
-      <input type="number" id="price" placeholder="Price" required />
-      <select id="category" required>
-        <option value="">Select Category</option>
-        <option value="Coffee">Coffee</option>
-        <option value="Tea">Tea</option>
-        <option value="Juice">Juice</option>
-      </select>
-      <button type="submit">Add Product</button>
-    </form>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/admin.css" />
 
-    <table id="productTable">
-      <thead>
-        <tr>
-          <th>Name</th><th>Price</th><th>Category</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Products will be shown here -->
-      </tbody>
-    </table>
-  </main>
+    <!-- Redirects anyone who is not a signed-in administrator. The server
+         enforces this independently on every /api endpoint. -->
+    <script src="js/api.js"></script>
+    <script src="js/admin-guard.js"></script>
+  </head>
 
-  <script>
-    // Reads localStorage defensively: a malformed value used to throw and
-    // abort the whole script (AUDIT.md section 6.4).
-    function readStoredProducts() {
-      try {
-        const parsed = JSON.parse(localStorage.getItem("products"));
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (err) {
-        console.warn("Discarding corrupt \"products\" entry: " + err.message);
-        try { localStorage.removeItem("products"); } catch (_) {}
-        return [];
-      }
-    }
+  <body class="admin-body" data-product-mode="list">
+    <nav class="admin-navbar">
+      <div class="logo">Nile &amp; Bean Admin</div>
+      <ul>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="index.html">Shop</a></li>
+        <li><a href="logout.html">Sign out</a></li>
+      </ul>
+    </nav>
 
-    const form = document.getElementById("addProductForm");
-    const tableBody = document.querySelector("#productTable tbody");
+    <main class="admin-container">
+      <h1>Add a Product</h1>
+      <p class="admin-intro">New products appear on the menu immediately.</p>
 
-    function loadProducts() {
-      const products = readStoredProducts();
-      tableBody.innerHTML = "";
-      products.forEach(p => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${p.name}</td>
-          <td>${p.price}</td>
-          <td>${p.category}</td>
-          <td><button class="delete-btn" onclick="deleteProduct('${p.name}')">Delete</button></td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+      <p class="admin-status" id="productsStatus" hidden></p>
 
-    function deleteProduct(name) {
-      let products = readStoredProducts();
-      products = products.filter(p => p.name !== name);
-      localStorage.setItem("products", JSON.stringify(products));
-      loadProducts();
-    }
+      <div class="table-scroll">
+        <table class="admin-table" id="productTable">
+          <thead>
+            <tr>
+            <th>Slug</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const price = document.getElementById("price").value.trim();
-      const category = document.getElementById("category").value;
+      <form class="admin-form" id="productForm" novalidate>
+        <h2 id="productFormTitle">Add New Product</h2>
+        <input type="hidden" id="productDbId" value="">
 
-      if (!name || !price || !category) return;
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productSlug">URL slug</label>
+            <input type="text" id="productSlug" name="slug" required
+                   placeholder="flat-white" pattern="[a-z0-9-]+">
+            <span class="field-error" id="productSlugError"></span>
+          </div>
+          <div class="form-field">
+            <label for="productName">Name</label>
+            <input type="text" id="productName" name="name" required maxlength="120"
+                   placeholder="Flat White">
+            <span class="field-error" id="productNameError"></span>
+          </div>
+        </div>
 
-      const newProduct = { name, price, category };
-      const products = readStoredProducts();
-      products.push(newProduct);
-      localStorage.setItem("products", JSON.stringify(products));
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productPrice">Price ($)</label>
+            <input type="number" id="productPrice" name="price" required
+                   min="0.01" step="0.01" placeholder="4.29">
+            <span class="field-error" id="productPriceError"></span>
+          </div>
+          <div class="form-field">
+            <label for="productCategory">Category</label>
+            <select id="productCategory" name="category" required>
+              <option value="">Select a category</option>
+              <option value="coffee">Coffee</option>
+              <option value="tea">Tea</option>
+              <option value="pastry">Pastry</option>
+              <option value="seasonal">Seasonal</option>
+            </select>
+            <span class="field-error" id="productCategoryError"></span>
+          </div>
+        </div>
 
-      form.reset();
-      loadProducts();
-    });
+        <div class="form-field">
+          <label for="productDescription">Short description</label>
+          <input type="text" id="productDescription" name="short_description" maxlength="300"
+                 placeholder="Smooth espresso with velvety steamed milk">
+          <span class="field-error" id="productDescriptionError"></span>
+        </div>
 
-    // Load existing products on page load
-    document.addEventListener("DOMContentLoaded", loadProducts);
-  </script>
-</body>
+        <div class="form-field">
+          <label for="productImage">Image URL <span class="optional">(optional)</span></label>
+          <input type="url" id="productImage" name="image" maxlength="500"
+                 placeholder="https://images.unsplash.com/...">
+          <span class="field-error" id="productImageError"></span>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="productSubmit">Add Product</button>
+          <button type="button" id="productCancel" hidden>Cancel</button>
+        </div>
+      </form>
+
+    </main>
+
+    <footer class="admin-footer">
+      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+    </footer>
+
+    <script src="js/admin.js"></script>
+    <script>
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>

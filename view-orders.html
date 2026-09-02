@@ -1,169 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>View Orders - Admin Dashboard</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #fdfdfd;
-      margin: 0;
-      padding: 0;
-    }
-    .navbar {
-      background-color: #8b5c2c;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    .navbar .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-    }
-    .navbar ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 1.5rem;
-    }
-    .navbar ul li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .navbar ul li a:hover {
-      text-decoration: underline;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 2rem;
-    }
-    h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      color: #3d3d3d;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      background-color: white;
-    }
-    th, td {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-    th {
-      background-color: #f3f3f3;
-      color: #555;
-    }
-    tr:hover {
-      background-color: #f9f5f0;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      margin-top: 3rem;
-      background-color: #f0f0f0;
-      color: #777;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">Nile & Bean Admin</div>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="logout.html">Logout</a></li>
-    </ul>
-  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orders - Nile &amp; Bean Admin</title>
+    <meta name="robots" content="noindex" />
 
-  <div class="container">
-    <h2>Customer Orders</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer Name</th>
-          <th>Product</th>
-          <th>Quantity</th>
-          <th>Status</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>#00123</td>
-          <td>Ali Hassan</td>
-          <td>Espresso</td>
-          <td>2</td>
-          <td>Completed</td>
-          <td>2025-05-20</td>
-        </tr>
-        <tr>
-          <td>#00124</td>
-          <td>Sarah Ahmed</td>
-          <td>Cappuccino</td>
-          <td>1</td>
-          <td>Completed</td>
-          <td>2025-05-21</td>
-        </tr>
-        <tr>
-          <td>#00125</td>
-          <td>Khaled Mostafa</td>
-          <td>Latte</td>
-          <td>3</td>
-          <td>Completed</td>
-          <td>2025-05-22</td>
-        </tr>
-        <tr>
-          <td>#00126</td>
-          <td>Laila Samir</td>
-          <td>Mocha</td>
-          <td>2</td>
-          <td>Completed</td>
-          <td>2025-05-23</td>
-        </tr>
-        <tr>
-          <td>#00127</td>
-          <td>Omar Tarek</td>
-          <td>Flat White</td>
-          <td>1</td>
-          <td>Completed</td>
-          <td>2025-05-23</td>
-        </tr>
-        <tr>
-          <td>#00128</td>
-          <td>Menna Hany</td>
-          <td>Macchiato</td>
-          <td>2</td>
-          <td>Completed</td>
-          <td>2025-05-24</td>
-        </tr>
-        <tr>
-          <td>#00129</td>
-          <td>Ahmed Nabil</td>
-          <td>Americano</td>
-          <td>3</td>
-          <td>Completed</td>
-          <td>2025-05-24</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/admin.css" />
 
-  <footer>
-    <p>&copy; 2025 Nile & Bean. All rights reserved.</p>
-  </footer>
-</body>
+    <!-- Redirects anyone who is not a signed-in administrator. The server
+         enforces this independently on every /api endpoint. -->
+    <script src="js/api.js"></script>
+    <script src="js/admin-guard.js"></script>
+  </head>
+
+  <body class="admin-body">
+    <nav class="admin-navbar">
+      <div class="logo">Nile &amp; Bean Admin</div>
+      <ul>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="index.html">Shop</a></li>
+        <li><a href="logout.html">Sign out</a></li>
+      </ul>
+    </nav>
+
+    <main class="admin-container">
+      <h1>Customer Orders</h1>
+      <p class="admin-intro">Live orders from the database. Change a status to update it immediately.</p>
+
+      <p class="admin-status" id="ordersStatus" hidden></p>
+
+      <div class="table-scroll">
+        <table class="admin-table" id="ordersTable">
+          <thead>
+            <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Type</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Placed</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <footer class="admin-footer">
+      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+    </footer>
+
+    <script src="js/admin.js"></script>
+    <script>
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>

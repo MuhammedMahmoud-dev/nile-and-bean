@@ -33,41 +33,59 @@ document.addEventListener('DOMContentLoaded', function() {
   let selectedExtras = [];
   let quantity = 1;
   
-  // Get product data
-  if (productId) {
-    product = window.NileBean.getProductById(productId);
+  // The catalogue is fetched from the API, so nothing can be resolved until
+  // it arrives. Show a loading state first, then the product or the error.
+  productDetailElement.classList.add('hidden');
+  productNotFoundElement.classList.add('hidden');
+
+  window.NileBean.whenProductsReady().then(function () {
+    const { state, error } = window.NileBean.getLoadState();
+    if (state === 'error') {
+      productNotFoundElement.classList.remove('hidden');
+      const heading = productNotFoundElement.querySelector('h2');
+      if (heading) heading.textContent = 'Could not load this product';
+      const para = productNotFoundElement.querySelector('p');
+      if (para) para.textContent = error.message;
+      return;
+    }
+
+    // Get product data
+    if (productId) {
+      product = window.NileBean.getProductById(productId);
     
-    if (product) {
-      // Show product detail
-      productDetailElement.classList.remove('hidden');
-      productNotFoundElement.classList.add('hidden');
+      if (product) {
+        // Show product detail
+        productDetailElement.classList.remove('hidden');
+        productNotFoundElement.classList.add('hidden');
       
-      // Set initial product options
-      if (product.options?.sizes?.length > 0) {
-        selectedSize = product.options.sizes[0].name;
+        // Set initial product options
+        if (product.options?.sizes?.length > 0) {
+          selectedSize = product.options.sizes[0].name;
+        }
+      
+        if (product.options?.milk?.length > 0) {
+          selectedMilk = product.options.milk[0];
+        }
+      
+        // Display product information
+        displayProductDetails();
+        updateTotalPrice();
+      
+        // Set up event handlers
+        setupEventHandlers();
+      } else {
+        // Show product not found message
+        productDetailElement.classList.add('hidden');
+        productNotFoundElement.classList.remove('hidden');
       }
-      
-      if (product.options?.milk?.length > 0) {
-        selectedMilk = product.options.milk[0];
-      }
-      
-      // Display product information
-      displayProductDetails();
-      updateTotalPrice();
-      
-      // Set up event handlers
-      setupEventHandlers();
     } else {
-      // Show product not found message
+      // No product ID provided
       productDetailElement.classList.add('hidden');
       productNotFoundElement.classList.remove('hidden');
     }
-  } else {
-    // No product ID provided
-    productDetailElement.classList.add('hidden');
-    productNotFoundElement.classList.remove('hidden');
-  }
   
+  });
+
   // Display product details
   function displayProductDetails() {
     productNameElement.textContent = product.name;

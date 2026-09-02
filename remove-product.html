@@ -1,140 +1,64 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Remove Product - Admin</title>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #fdfdfd;
-      margin: 0;
-      padding: 0;
-    }
-    .navbar {
-      background-color: #8b5c2c;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-    }
-    .navbar .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.5rem;
-    }
-    .navbar ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      gap: 1.5rem;
-    }
-    .navbar ul li a {
-      color: white;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .container {
-      max-width: 900px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-    h2 {
-      text-align: center;
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      margin-bottom: 2rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 1rem;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-    .remove-btn {
-      background: #c0392b;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .remove-btn:hover {
-      background: #e74c3c;
-    }
-  </style>
-</head>
-<body>
-  <nav class="navbar">
-    <div class="logo">Nile & Bean Admin</div>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="logout.html">Logout</a></li>
-    </ul>
-  </nav>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Remove Products - Nile &amp; Bean Admin</title>
+    <meta name="robots" content="noindex" />
 
-  <main class="container">
-    <h2>Remove Products</h2>
-    <table id="productTable">
-      <thead>
-        <tr>
-          <th>Name</th><th>Price</th><th>Category</th><th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Products will be listed here -->
-      </tbody>
-    </table>
-  </main>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/admin.css" />
 
-  <script>
-    // Reads localStorage defensively: a malformed value used to throw and
-    // abort the whole script (AUDIT.md section 6.4).
-    function readStoredProducts() {
-      try {
-        const parsed = JSON.parse(localStorage.getItem("products"));
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (err) {
-        console.warn("Discarding corrupt \"products\" entry: " + err.message);
-        try { localStorage.removeItem("products"); } catch (_) {}
-        return [];
-      }
-    }
+    <!-- Redirects anyone who is not a signed-in administrator. The server
+         enforces this independently on every /api endpoint. -->
+    <script src="js/api.js"></script>
+    <script src="js/admin-guard.js"></script>
+  </head>
 
-    const tableBody = document.querySelector("#productTable tbody");
+  <body class="admin-body" data-product-mode="remove">
+    <nav class="admin-navbar">
+      <div class="logo">Nile &amp; Bean Admin</div>
+      <ul>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="index.html">Shop</a></li>
+        <li><a href="logout.html">Sign out</a></li>
+      </ul>
+    </nav>
 
-    function loadProducts() {
-      const products = readStoredProducts();
-      tableBody.innerHTML = "";
-      products.forEach((p, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${p.name}</td>
-          <td>${p.price}</td>
-          <td>${p.category}</td>
-          <td><button class="remove-btn" onclick="removeProduct(${index})">Remove</button></td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+    <main class="admin-container">
+      <h1>Remove Products</h1>
+      <p class="admin-intro">Deleting is permanent. A product that appears in an existing order cannot be deleted - withdraw it from sale instead.</p>
 
-    function removeProduct(index) {
-      const products = readStoredProducts();
-      products.splice(index, 1);
-      localStorage.setItem("products", JSON.stringify(products));
-      loadProducts();
-    }
+      <p class="admin-status" id="productsStatus" hidden></p>
 
-    document.addEventListener("DOMContentLoaded", loadProducts);
-  </script>
-</body>
+      <div class="table-scroll">
+        <table class="admin-table" id="productTable">
+          <thead>
+            <tr>
+            <th>Slug</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+    </main>
+
+    <footer class="admin-footer">
+      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+    </footer>
+
+    <script src="js/admin.js"></script>
+    <script>
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
+  </body>
 </html>

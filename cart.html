@@ -26,6 +26,7 @@
               <li><a href="index.html">Home</a></li>
               <li><a href="menu.html">Menu</a></li>
               <li><a href="about.html">About Us</a></li>
+              <li id="accountNav"></li>
             </ul>
           </nav>
           <div class="navbar-cart">
@@ -117,10 +118,20 @@
                     
                     <div id="deliveryAddress" class="delivery-address hidden">
                       <h3>Delivery Address</h3>
-                      <input type="text" placeholder="Street Address" id="street" class="text-input">
-                      <div class="input-row">
-                        <input type="text" placeholder="City" id="city" class="text-input">
-                        <input type="text" placeholder="Zip Code" id="zipCode" class="text-input">
+                      <div class="form-group">
+                        <label for="street">Street address</label>
+                        <input type="text" id="street" class="text-input" autocomplete="address-line1">
+                        <span class="field-error" id="streetError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" class="text-input" autocomplete="address-level2">
+                        <span class="field-error" id="cityError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="zipCode">Zip code</label>
+                        <input type="text" id="zipCode" class="text-input" autocomplete="postal-code">
+                        <span class="field-error" id="zipCodeError"></span>
                       </div>
                     </div>
                   </div>
@@ -128,9 +139,21 @@
                   <!-- Contact Information Section -->
                   <div class="checkout-section">
                     <h2>Contact Information</h2>
-                    <input type="text" placeholder="Full Name" id="fullName" class="text-input">
-                    <input type="tel" placeholder="Phone Number" id="phone" class="text-input">
-                    <input type="email" placeholder="Email Address" id="email" class="text-input">
+                      <div class="form-group">
+                        <label for="fullName">Full name</label>
+                        <input type="text" id="fullName" class="text-input" autocomplete="name" required>
+                        <span class="field-error" id="fullNameError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="phone">Phone number</label>
+                        <input type="tel" id="phone" class="text-input" autocomplete="tel" required>
+                        <span class="field-error" id="phoneError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" id="email" class="text-input" autocomplete="email" required>
+                        <span class="field-error" id="emailError"></span>
+                      </div>
                   </div>
                   
                   <!-- Payment Method Section -->
@@ -152,12 +175,27 @@
                     </div>
                     
                     <div id="cardDetails" class="card-details">
-                      <input type="text" placeholder="Card Number" class="text-input">
-                      <div class="input-row">
-                        <input type="text" placeholder="MM / YY" class="text-input">
-                        <input type="text" placeholder="CVC" class="text-input">
+                      <p class="field-hint">Demonstration only - no card is charged and no card details are transmitted or stored.</p>
+                      <div class="form-group">
+                        <label for="cardNumber">Card number</label>
+                        <input type="text" id="cardNumber" class="text-input" inputmode="numeric" autocomplete="cc-number">
+                        <span class="field-error" id="cardNumberError"></span>
                       </div>
-                      <input type="text" placeholder="Name on Card" class="text-input">
+                      <div class="form-group">
+                        <label for="cardExpiry">Expiry (MM/YY)</label>
+                        <input type="text" id="cardExpiry" class="text-input" inputmode="numeric" autocomplete="cc-exp">
+                        <span class="field-error" id="cardExpiryError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="cardCvc">CVC</label>
+                        <input type="text" id="cardCvc" class="text-input" inputmode="numeric" autocomplete="cc-csc">
+                        <span class="field-error" id="cardCvcError"></span>
+                      </div>
+                      <div class="form-group">
+                        <label for="cardName">Name on card</label>
+                        <input type="text" id="cardName" class="text-input" autocomplete="cc-name">
+                        <span class="field-error" id="cardNameError"></span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -183,6 +221,8 @@
                         <span id="checkoutTotal">$0.00</span>
                       </div>
                     </div>
+                    <p class="form-error hidden" id="checkoutError" role="alert"></p>
+                    <p class="field-hint" id="checkoutNotice"></p>
                     <div class="checkout-buttons">
                       <button id="placeOrderButton" class="button full-width">Place Order</button>
                       <button id="backToCartButton" class="button outline-button full-width">Back to Cart</button>
@@ -228,6 +268,7 @@
       </footer>
     </div>
     
+    <script src="js/api.js"></script>
     <script src="js/main.js"></script>
     <script src="js/cart.js"></script>
   </body>

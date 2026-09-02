@@ -1,4 +1,22 @@
-fastapi
-uvicorn
-sqlalchemy
-pydantic
+# Runtime dependencies. Every version is pinned: the original file listed four
+# packages with no versions at all, and omitted passlib entirely even though
+# crud.py imported it, so a clean install could not start the app.
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+pydantic==2.10.4
+# EmailStr defers its dependency check to schema-build time, so a missing
+# email-validator fails at startup rather than at import.
+email-validator==2.2.0
+alembic==1.14.0
+
+# Auth. passlib 1.7.4 reads bcrypt.__about__, which bcrypt removed in 4.1, so
+# bcrypt is held below that line deliberately - unpinning it breaks hashing.
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+PyJWT==2.10.1
+
+# OAuth2PasswordRequestForm parses multipart/form-data; FastAPI raises at
+# import time without it.
+python-multipart==0.0.20

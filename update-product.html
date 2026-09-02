@@ -3,174 +3,121 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Products - Nile & Bean</title>
+    <title>Update Products - Nile &amp; Bean Admin</title>
+    <meta name="robots" content="noindex" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #fdfdfd;
-        margin: 0;
-        padding: 0;
-      }
-      .navbar {
-        background-color: #8b5c2c;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: white;
-      }
-      .navbar .logo {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.5rem;
-      }
-      .navbar ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        gap: 1.5rem;
-      }
-      .navbar ul li a {
-        color: white;
-        text-decoration: none;
-        font-weight: 500;
-      }
-      .navbar ul li a:hover {
-        text-decoration: underline;
-      }
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
-      .section-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 2rem;
-        text-align: center;
-        color: #3d3d3d;
-        margin-bottom: 2rem;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #fff;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        overflow: hidden;
-      }
-      th, td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
-      th {
-        background-color: #f3f3f3;
-        font-weight: 600;
-      }
-      tr:last-child td {
-        border-bottom: none;
-      }
-      .add-form input {
-        flex: 1;
-        padding: 0.5rem;
-      }
-      .add-form button {
-        padding: 0.6rem 1rem;
-        background-color: #8b5c2c;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-      }
-      footer {
-        text-align: center;
-        padding: 1rem;
-        margin-top: 3rem;
-        background-color: #f0f0f0;
-        color: #777;
-      }
-    </style>
+    <link rel="stylesheet" href="css/admin.css" />
+
+    <!-- Redirects anyone who is not a signed-in administrator. The server
+         enforces this independently on every /api endpoint. -->
+    <script src="js/api.js"></script>
+    <script src="js/admin-guard.js"></script>
   </head>
-  <body>
-    <nav class="navbar">
-      <div class="logo">Nile & Bean Admin</div>
+
+  <body class="admin-body" data-product-mode="update">
+    <nav class="admin-navbar">
+      <div class="logo">Nile &amp; Bean Admin</div>
       <ul>
-        <li><a href="index.html">Home</a></li>
-        <li><a href="logout.html">Logout</a></li>
+        <li><a href="admin.html">Dashboard</a></li>
+        <li><a href="index.html">Shop</a></li>
+        <li><a href="logout.html">Sign out</a></li>
       </ul>
     </nav>
 
-    <main class="container">
-      <h2 class="section-title">Update Products</h2>
-      <table id="productTable">
-        <thead>
-          <tr>
-            <th>Product ID</th>
+    <main class="admin-container">
+      <h1>Update Products</h1>
+      <p class="admin-intro">Edit a product in place, or withdraw it from sale without deleting its order history.</p>
+
+      <p class="admin-status" id="productsStatus" hidden></p>
+
+      <div class="table-scroll">
+        <table class="admin-table" id="productTable">
+          <thead>
+            <tr>
+            <th>Slug</th>
             <th>Name</th>
             <th>Category</th>
             <th>Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>#P101</td>
-            <td>Espresso</td>
-            <td>Coffee</td>
-            <td>$5.00</td>
-          </tr>
-          <tr>
-            <td>#P102</td>
-            <td>Latte</td>
-            <td>Coffee</td>
-            <td>$6.00</td>
-          </tr>
-        </tbody>
-      </table>
+            <th>Status</th>
+            <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-      <section style="margin-top: 3rem;">
-        <h3>Add New Product</h3>
-        <form id="addProductForm" class="add-form" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;">
-          <input type="text" id="productId" placeholder="Product ID" required />
-          <input type="text" id="productName" placeholder="Name" required />
-          <input type="text" id="productCategory" placeholder="Category" required />
-          <input type="number" min="5" step="1" id="productPrice" placeholder="Price ($)" required />
-          <button type="submit">Add Product</button>
-        </form>
-      </section>
+      <form class="admin-form" id="productForm" novalidate>
+        <h2 id="productFormTitle">Add New Product</h2>
+        <input type="hidden" id="productDbId" value="">
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productSlug">URL slug</label>
+            <input type="text" id="productSlug" name="slug" required
+                   placeholder="flat-white" pattern="[a-z0-9-]+">
+            <span class="field-error" id="productSlugError"></span>
+          </div>
+          <div class="form-field">
+            <label for="productName">Name</label>
+            <input type="text" id="productName" name="name" required maxlength="120"
+                   placeholder="Flat White">
+            <span class="field-error" id="productNameError"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="productPrice">Price ($)</label>
+            <input type="number" id="productPrice" name="price" required
+                   min="0.01" step="0.01" placeholder="4.29">
+            <span class="field-error" id="productPriceError"></span>
+          </div>
+          <div class="form-field">
+            <label for="productCategory">Category</label>
+            <select id="productCategory" name="category" required>
+              <option value="">Select a category</option>
+              <option value="coffee">Coffee</option>
+              <option value="tea">Tea</option>
+              <option value="pastry">Pastry</option>
+              <option value="seasonal">Seasonal</option>
+            </select>
+            <span class="field-error" id="productCategoryError"></span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="productDescription">Short description</label>
+          <input type="text" id="productDescription" name="short_description" maxlength="300"
+                 placeholder="Smooth espresso with velvety steamed milk">
+          <span class="field-error" id="productDescriptionError"></span>
+        </div>
+
+        <div class="form-field">
+          <label for="productImage">Image URL <span class="optional">(optional)</span></label>
+          <input type="url" id="productImage" name="image" maxlength="500"
+                 placeholder="https://images.unsplash.com/...">
+          <span class="field-error" id="productImageError"></span>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="productSubmit">Add Product</button>
+          <button type="button" id="productCancel" hidden>Cancel</button>
+        </div>
+      </form>
+
     </main>
 
-    <footer>
-      <p>&copy; 2025 Nile & Bean. All rights reserved.</p>
+    <footer class="admin-footer">
+      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
     </footer>
 
+    <script src="js/admin.js"></script>
     <script>
-      document.getElementById("addProductForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        const id = document.getElementById("productId").value;
-        const name = document.getElementById("productName").value;
-        const category = document.getElementById("productCategory").value;
-        const priceValue = document.getElementById("productPrice").value;
-        const price = parseFloat(priceValue).toFixed(2);
-
-        if (!id || !name || !category || isNaN(price) || price < 5) {
-          alert("Please fill out all fields correctly. Price must be at least $5.");
-          return;
-        }
-
-        const table = document.getElementById("productTable").querySelector("tbody");
-        const newRow = document.createElement("tr");
-        newRow.innerHTML = `
-          <td>${id}</td>
-          <td>${name}</td>
-          <td>${category}</td>
-          <td>$${price}</td>
-        `;
-        table.appendChild(newRow);
-
-        document.getElementById("addProductForm").reset();
-      });
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
   </body>
 </html>

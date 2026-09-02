@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In - Nile &amp; Bean</title>
+    <meta name="description" content="Sign in to your Nile &amp; Bean account to place an order." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+
+  <body>
+    <div id="root">
+      <header class="navbar">
+        <div class="navbar-container">
+          <div class="navbar-logo">
+            <a href="index.html">Nile &amp; Bean</a>
+          </div>
+          <nav class="navbar-nav">
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="menu.html">Menu</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li data-admin-only hidden><a href="admin.html">Admin</a></li>
+              <li id="accountNav"></li>
+            </ul>
+          </nav>
+          <div class="navbar-cart">
+            <a href="cart.html" class="cart-button" aria-label="View cart">
+              <span class="cart-icon" aria-hidden="true">&#128722;</span>
+              <span class="cart-count" id="cartCount">0</span>
+            </a>
+          </div>
+          <button class="mobile-menu-button" id="mobileMenuButton"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Toggle navigation">&#9776;</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="cart.html">Cart</a></li>
+          </ul>
+        </div>
+      </header>
+
+      <main>
+        <section class="coffee-section">
+          <div class="auth-container">
+            <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+              <button type="button" class="auth-tab active" id="tabSignIn"
+                      role="tab" aria-selected="true" aria-controls="signInPanel">Sign In</button>
+              <button type="button" class="auth-tab" id="tabRegister"
+                      role="tab" aria-selected="false" aria-controls="registerPanel">Create Account</button>
+            </div>
+
+            <p class="form-error hidden" id="authError" role="alert"></p>
+
+            <!-- Sign in -->
+            <form id="signInPanel" class="auth-form" role="tabpanel" aria-labelledby="tabSignIn" novalidate>
+              <h1>Welcome back</h1>
+
+              <div class="form-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" name="username" class="text-input"
+                       autocomplete="username" required>
+                <span class="field-error" id="loginUsernameError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="password" class="text-input"
+                       autocomplete="current-password" required>
+                <span class="field-error" id="loginPasswordError"></span>
+              </div>
+
+              <button type="submit" class="button full-width" id="signInButton">Sign In</button>
+
+              <p class="auth-hint">
+                Forgotten your password? <a href="reset-password.html">Reset it</a>.
+              </p>
+            </form>
+
+            <!-- Register -->
+            <form id="registerPanel" class="auth-form hidden" role="tabpanel" aria-labelledby="tabRegister" novalidate>
+              <h1>Create your account</h1>
+
+              <div class="form-group">
+                <label for="regUsername">Username</label>
+                <input type="text" id="regUsername" name="username" class="text-input"
+                       autocomplete="username" required minlength="3" maxlength="50">
+                <span class="field-error" id="regUsernameError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="regEmail">Email address</label>
+                <input type="email" id="regEmail" name="email" class="text-input"
+                       autocomplete="email" required>
+                <span class="field-error" id="regEmailError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="regFullName">Full name <span class="optional">(optional)</span></label>
+                <input type="text" id="regFullName" name="full_name" class="text-input"
+                       autocomplete="name" maxlength="120">
+                <span class="field-error" id="regFullNameError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" name="password" class="text-input"
+                       autocomplete="new-password" required minlength="8">
+                <span class="field-hint">At least 8 characters.</span>
+                <span class="field-error" id="regPasswordError"></span>
+              </div>
+
+              <button type="submit" class="button full-width" id="registerButton">Create Account</button>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="coffee-container">
+          <div class="footer-grid">
+            <div class="footer-column">
+              <h3>Nile &amp; Bean</h3>
+              <p>Making coffee ordering feel as warm and personal as visiting your favorite caf&eacute;.</p>
+              <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+            </div>
+            <div class="footer-column">
+              <h3>Quick Links</h3>
+              <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="menu.html">Menu</a></li>
+                <li><a href="about.html">About Us</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
+</html>

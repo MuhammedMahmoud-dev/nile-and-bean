@@ -1,0 +1,290 @@
+/* Admin area styles.
+ *
+ * Consolidated from seven near-identical <style> blocks that were inlined into
+ * each admin page, redefining the same rules with small drifts between them.
+ * Loaded after css/styles.css, and reuses its design tokens rather than
+ * repeating the hex values.
+ */
+
+.admin-body {
+  font-family: 'Inter', sans-serif;
+  background-color: #fdfdfd;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* --- Header --------------------------------------------------------------- */
+
+.admin-navbar {
+  background-color: var(--coffee-medium);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  color: var(--white);
+  flex-wrap: wrap;
+}
+
+.admin-navbar .logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+}
+
+.admin-navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.admin-navbar a {
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-navbar a:hover,
+.admin-navbar a:focus-visible {
+  text-decoration: underline;
+}
+
+/* --- Layout --------------------------------------------------------------- */
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.admin-container h1,
+.admin-container h2 {
+  font-family: 'Playfair Display', serif;
+  color: var(--coffee-dark);
+}
+
+.admin-footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* --- Dashboard cards ------------------------------------------------------ */
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.admin-card {
+  background-color: var(--white);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.admin-card h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.admin-card p {
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+.admin-card a {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  background-color: var(--coffee-medium);
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-card a:hover,
+.admin-card a:focus-visible {
+  background-color: var(--coffee-dark);
+}
+
+/* --- Tables --------------------------------------------------------------- */
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--white);
+  box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+
+.admin-table th {
+  background-color: var(--coffee-dark);
+  color: var(--white);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #faf7f2;
+}
+
+.table-empty {
+  text-align: center;
+  color: #777;
+  padding: 2rem 1rem;
+}
+
+/* --- Buttons -------------------------------------------------------------- */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.actions button,
+.admin-form button {
+  padding: 0.45rem 0.9rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background-color: var(--coffee-medium);
+  color: var(--white);
+}
+
+.actions button:hover:not(:disabled),
+.admin-form button:hover:not(:disabled) {
+  background-color: var(--coffee-dark);
+}
+
+.actions button:disabled,
+.admin-form button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.delete-btn,
+.remove-btn {
+  background-color: #b3261e;
+}
+
+.delete-btn:hover:not(:disabled),
+.remove-btn:hover:not(:disabled) {
+  background-color: #8c1d18;
+}
+
+/* --- Forms ---------------------------------------------------------------- */
+
+.admin-form {
+  margin-top: 2.5rem;
+  background-color: var(--white);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  max-width: 720px;
+}
+
+.admin-form .form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-form .form-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 220px;
+  margin-bottom: 1rem;
+}
+
+.admin-form label {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  font-size: 0.92rem;
+}
+
+.admin-form input,
+.admin-form select,
+.admin-form textarea {
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.admin-form input:disabled {
+  background-color: #f2f2f2;
+  color: #777;
+}
+
+.admin-form [aria-invalid="true"] {
+  border-color: #b3261e;
+}
+
+.status-select {
+  padding: 0.35rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+/* --- Status messages ------------------------------------------------------ */
+
+.admin-status {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+}
+
+.admin-status-error {
+  background-color: #fdecea;
+  color: #8c1d18;
+  border: 1px solid #f5c6c2;
+}
+
+.admin-status-success {
+  background-color: #e7f4e8;
+  color: #1e4620;
+  border: 1px solid #bcdfc0;
+}
+
+.admin-status-info {
+  background-color: #eef2f7;
+  color: #33475b;
+  border: 1px solid #ccd7e3;
+}

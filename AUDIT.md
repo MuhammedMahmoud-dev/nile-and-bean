@@ -827,3 +827,170 @@ the toast permanently invisible there.
 This item is listed under Phase 4 in the remediation brief. It was brought forward
 because rewriting `main.js` for the fixes above necessarily touched `showToast`, and
 leaving it half-converted would have shipped an unstyled toast through Phase 3.
+
+### Phase 3 — the two halves became one application
+
+Before this phase the frontend made zero network calls and the backend had one
+working endpoint (§4). They are now a single application: FastAPI serves the static
+site and the API from one origin.
+
+#### Backend
+
+**Paths.** `Backend/main.py` mounted static files from
+`C:\Sw_project_Deliverable-_3-main`, an absolute Windows path belonging to a
+different directory than this project (§4.2). Every path is now derived from the
+package location in `app/config.py`, so the app runs from any checkout on any OS.
+
+**Layout.** The flat modules used implicit same-directory imports (`import models`),
+which only resolve when the process working directory is `Backend/`. That blocks
+pytest and Alembic. The code is now an `app` package with explicit relative imports.
+
+**Dependencies.** `requirements.txt` listed four packages with no versions and
+omitted `passlib`, which `crud.py` imported — so a clean install could not start the
+app (§4.4). Every dependency is now pinned. `bcrypt` is deliberately held at 4.0.1:
+`passlib` 1.7.4 reads `bcrypt.__about__`, which bcrypt removed in 4.1, and unpinning
+it breaks password hashing. `email-validator` was added because `EmailStr` defers its
+dependency check to schema-build time, so its absence fails at startup rather than at
+import.
+
+**Pydantic.** `class Config: orm_mode = True` (v1 syntax) is now
+`model_config = ConfigDict(from_attributes=True)`, matching the pinned v2.
+
+**Data model.** The three defects in §5.1 are fixed:
+
+| Was | Now |
+|---|---|
+| `price` as `Integer`, unable to hold $2.99 | `Numeric(10, 2)`, returned as `Decimal`. **[EXECUTED]** — verified to round-trip exactly on SQLite with no warning, for `2.99`, `4.49`, `5.49`, `0.30`, `1234.56`. No money is held as a float anywhere. |
+| One product per order | `Order` header + `OrderItem` lines. Each line stores its own `unit_price`, `line_total`, and the chosen `size` / `milk` / `extras` / `special_instructions` — which previously had no column at all. |
+| `product_id` a bare FK with no `relationship()` | `Product.order_items` ↔ `OrderItem.product` wired in both directions. |
+
+Prices on an order line are copied at purchase time, so changing a product's price
+later does not rewrite past orders. SQLite's `PRAGMA foreign_keys=ON` is now set per
+connection — without it SQLite ignores foreign keys entirely, leaving the
+constraints decorative.
+
+**Migrations.** Alembic is configured, reading its URL and metadata from the
+application so each is defined once, with `render_as_batch=True` because SQLite
+cannot `ALTER` most things in place. The committed `cafe.db` was deleted and `*.db`
+gitignored, which removes the §5 schema-drift trap at its root: the schema is now
+owned by migrations rather than by whatever `create_all()` happened to leave behind.
+
+**Seed.** `Backend/seed_data.json` was extracted **programmatically** from the nine
+products hardcoded in `js/main.js`, rather than retyped, so the seeded catalogue is
+faithful to what the site served. `seed.py` is idempotent and also creates the two
+demo accounts and the four reviews the admin page used to hardcode.
+
+**Endpoints.** 4 routes became 19, all validated by Pydantic schemas and returning
+appropriate status codes.
+
+**Authentication.** The bcrypt hashing in the original `crud.create_user` was correct
+and is kept unchanged. Added around it: JWT issuing on login, `get_current_user`
+resolving the caller from a bearer token, and `get_current_admin` enforcing the
+`is_admin` column that previously existed but was never set, read, or checked (§6.1).
+Every admin endpoint depends on it. `is_admin` is never accepted from a request body,
+so self-signup cannot mint an administrator. Login returns one message for both an
+unknown username and a wrong password, and hashes even when the user does not exist,
+so neither response nor timing enumerates accounts.
+
+**[EXECUTED]** — authorization, end to end:
+
+```
+GET /api/users   no token    -> 401
+GET /api/users   admin       -> 200
+GET /api/users   customer    -> 403
+GET /api/orders  customer    -> 403
+POST login       wrong pass  -> 401
+```
+
+**Totals are computed server-side.** `OrderCreate` has no field for a price or a
+total — a client sends only what it wants and how many. Unknown options are rejected
+rather than ignored, since silently dropping an unrecognised extra would let a client
+have it for free.
+
+**[EXECUTED]** — a client attempting to name its own price:
+
+```
+client sent unit_price=0.01; server charged 5.49, total 5.93
+```
+
+**[EXECUTED]** — a fabricated option, and delivery without an address:
+
+```
+{"detail":"Espresso has no extra 'Free Gold Bar'"}
+Value error, Delivery orders require address_street, address_city, address_zip
+```
+
+**CORS** is never a wildcard. In production the frontend is same-origin and the
+allow-list is empty; the dev origins exist only for running the static site from a
+separate server.
+
+#### Frontend
+
+**Catalogue from the API.** The nine-item array is gone. `js/main.js` fetches the
+catalogue, with a loading state and an error state carrying a retry. Because the API
+speaks snake_case and serialises `Decimal` prices as JSON *strings* while nested
+option prices remain numbers, one `normaliseProduct()` adapter converts the API shape
+to the shape the page scripts already used — so `product.js`, `menu.js` and `cart.js`
+did not need rewriting around the transport format.
+
+**Checkout is real.** It previously had no validation of any kind, read nothing the
+user typed, and fired an `alert()` (§6.5). It now validates every field, posts a real
+order, and shows server-side errors.
+
+**[EXECUTED]** — submitting the checkout deliberately incomplete:
+
+```
+banner: "Please correct 10 fields below."
+street, city, zipCode, fullName, phone, email,
+cardNumber, cardExpiry, cardCvc, cardName  -> each with its own message
+```
+
+**[EXECUTED]** — then completing it, for a Latte (Large, Oat, Extra Shot) × 2:
+
+```
+order #4  delivery -> 12 Nile Corniche, Cairo 11511
+  line: 2 x Latte @ 6.48 = 12.96 | size Large milk Oat extras ['Extra Shot']
+  subtotal 12.96   tax 1.04   TOTAL 14.00
+```
+
+Card details are validated for shape but are **not** part of the request schema and
+are never transmitted or stored. The page says so.
+
+**Login and logout now exist.** `login.html` (sign in + register, with per-field
+validation) and `logout.html` were the two links that pointed at nothing (§3.1). The
+`?next=` parameter is restricted to same-origin relative paths so it cannot be used
+as an open redirect.
+
+**Admin pages are real.** All six read from and write to the API. The seven pages of
+hardcoded rows and DOM-only handlers described in §6.6 are gone — including
+`update-product.html`, which despite its name previously updated nothing.
+
+**Admin pages are guarded.** `js/admin-guard.js` redirects anyone who is not a
+signed-in administrator, hiding the document until the check resolves so protected
+markup never flashes. This is a usability guard, not the security boundary: the
+server enforces access independently on every endpoint.
+
+**[EXECUTED]** — anonymous visitor requesting `/admin.html`:
+
+```
+landed_on: "/login.html?next=admin.html"
+```
+
+…and after signing in, they are returned to `admin.html`.
+
+**Tax has one definition per side.** `TAX_RATE` is a named constant in
+`app/config.py` (authoritative) and in `js/main.js` (preview only). The client's
+figure is never trusted; the order total in the confirmation is the server's.
+
+**The stray password field is gone** from the contact form (§6.2), along with two
+further artifacts of the same copy-paste that surfaced while removing it: a
+"Forgot Password?" link inside the contact form, and a submit button labelled
+"Login".
+
+#### Known limitation, accepted deliberately
+
+The access token is held in `localStorage`, so it is readable by any script on the
+page and is only as safe as the page is free of XSS. The alternative — an httpOnly
+cookie — requires CSRF protection that this project does not implement. This was a
+deliberate choice, and it is the one security tradeoff in the current design that a
+production deployment should revisit.
