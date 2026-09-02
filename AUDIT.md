@@ -1078,3 +1078,54 @@ link checker. Two of them exist because of specific defects in this audit:
 
 **[EXECUTED]** — both checks pass locally: `No new upgrade operations detected`, and
 `broken references: 0`.
+
+### Phase 5 — documentation, and one bug the documentation found
+
+`README.md` was rewritten to state plainly what the five-person team delivered, what
+was changed afterwards and by whom, how to run both halves, the architecture, the
+full API, and the known `localStorage` token limitation.
+
+#### A regression found while writing the docs
+
+Capturing the README screenshots meant running the app on a port other than 8000 for
+the first time — and it broke.
+
+`js/api.js` had resolved the API's location by inspecting `location.port` and falling
+back to a hardcoded `http://127.0.0.1:8000` for anything else. Served on any other
+port, every request went cross-origin to a port that usually had nothing listening,
+and the site showed *"Could not reach the server"* while the API was running
+perfectly on the page's own origin.
+
+**[EXECUTED]** — the first screenshot run captured the product page rendering its
+error state instead of the product. Fixed in `16d4b5a`: the base URL is now the
+page's own origin, whatever port that is, with `window.NILEBEAN_API_BASE` as the
+explicit override and `file://` still needing a host because it has no origin to be
+relative to.
+
+Worth recording for two reasons. First, it is the same *kind* of defect as the
+original §4.2 hardcoded path — an environment assumption baked into code that then
+only works on the machine it was written on. Second, no test caught it: the frontend
+tests stub the API layer, and the backend tests never exercise the browser's URL
+resolution. Taking screenshots was what exercised it.
+
+#### Setup instructions verified from scratch
+
+The README's instructions were run verbatim against a **fresh `git clone` into an
+empty directory**, not the working tree.
+
+**[EXECUTED]**:
+
+```
+clone            67 files, no cafe.db, no node_modules
+python -m venv   ok
+pip install -r requirements.txt -r requirements-dev.txt   ok
+alembic upgrade head   -> Running upgrade -> d31d38a5eb9d, initial schema
+python seed.py         -> 9 products created, 2 users, 4 reviews
+python -m pytest       -> 91 passed
+npm install && npm test -> 32 passed
+uvicorn app.main:app   -> site 200, /docs 200, /api/products 9 products,
+                          admin login ok, /api/users 200 as admin, 401 anonymous
+```
+
+**[EXECUTED]** — and the clean checkout, served on port 8021, renders the catalogue
+from its own database: 9 items, 2 tea, 2 pastry, first card *Espresso $2.99*.
