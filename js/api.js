@@ -9,15 +9,19 @@
   const TOKEN_KEY = 'nilebeanToken';
   const USER_KEY = 'nilebeanUser';
 
-  // The frontend is normally served by the API itself, so a relative URL is
-  // correct. When the static files are run from a separate dev server while
-  // working on the frontend, point at the API explicitly. Override by setting
-  // window.NILEBEAN_API_BASE before this script loads.
+  // The frontend is served by the API itself, so a same-origin relative URL is
+  // correct whatever port that origin happens to be on. Do not guess a port
+  // here: an earlier version assumed 8000 and broke the moment the app was
+  // served from anywhere else.
+  //
+  // To run the static files from a separate dev server while working on the
+  // frontend, set window.NILEBEAN_API_BASE before this script loads, e.g.
+  //   <script>window.NILEBEAN_API_BASE = 'http://127.0.0.1:8000';</script>
+  // and make sure that origin is in DEV_CORS_ORIGINS in Backend/app/config.py.
   const API_BASE = (function () {
     if (typeof window.NILEBEAN_API_BASE === 'string') return window.NILEBEAN_API_BASE;
+    // file:// has no origin to be relative to, so it needs an explicit host.
     if (location.protocol === 'file:') return 'http://127.0.0.1:8000';
-    // Any origin that is not the API's own is treated as a separate dev server.
-    if (location.port && location.port !== '8000') return 'http://127.0.0.1:8000';
     return '';
   })();
 
