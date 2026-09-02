@@ -994,3 +994,87 @@ page and is only as safe as the page is free of XSS. The alternative — an http
 cookie — requires CSRF protection that this project does not implement. This was a
 deliberate choice, and it is the one security tradeoff in the current design that a
 production deployment should revisit.
+
+### Phase 4 — tests, accessibility, responsiveness, CI
+
+#### Tests
+
+The project had none (§6.3). It now has **123**.
+
+| Suite | Count | Covers |
+|---|---:|---|
+| `Backend/tests/test_auth.py` | 24 | Hashing, salting, registration validation, duplicate accounts, login, token forgery, expiry, tokens for deleted accounts |
+| `Backend/tests/test_pricing.py` | 27 | Half-up rounding, option pricing, rejection of options a product does not offer, order totals, price freezing |
+| `Backend/tests/test_orders_api.py` | 13 | Order endpoint auth, validation, price integrity, order privacy |
+| `Backend/tests/test_authorization.py` | 27 | Every admin route × anonymous/customer/admin, catalogue visibility, product and user management guards |
+| `tests/pricing.test.js` | 13 | Browser-side price calculation and API-shape normalisation |
+| `tests/cart.test.js` | 19 | Cart state, persistence, totals, corrupt storage, catalogue error state |
+
+Each of the three structural bugs from §2 now has a test that fails if it returns:
+
+- **§2.1** — `cart.test.js`: "exposes every product through the accessor", and
+  "does not expose a raw products array that could go stale".
+- **§2.2** — `cart.test.js`: "reflects a mutation immediately in a previously
+  fetched reference", and "increments repeatedly rather than idempotently".
+- **§2.3** — `pricing.test.js` and `test_pricing.py`: the exact
+  Espresso + Triple + Vanilla Syrup case, on both sides.
+
+Backend tests run against a throwaway SQLite file per test, so they never touch a
+developer's database and cannot leak state between cases.
+
+**[EXECUTED]** — `91 passed` (backend), `32 passed` (frontend).
+
+#### Accessibility
+
+**Contrast measured, not assumed.** A script walked every text-bearing element on
+all 14 pages in a real browser, resolved each element's effective background
+through its ancestors, and computed the WCAG contrast ratio against the size and
+weight actually rendered.
+
+**[EXECUTED]** — final sweep: **120 colour pairs across 14 pages, 0 failures**,
+lowest ratio **5.74** against a 4.5 requirement.
+
+Three real failures were found and fixed:
+
+| Element | Was | Now | Fix |
+|---|---:|---:|---|
+| Hero text over the header photo | 3.98 worst case | 5.74 | Scrim `rgba(0,0,0,.5)` → `.6`. The photo's brightness is not under our control, so the scrim has to carry the contrast against a worst-case white image. |
+| `.auth-hint a` — caramel link on white, 14.4px | 3.23 | 4.95 | Added a `--caramel-text: #9c6408` token. `--caramel` is kept for large text, borders and focus rings, where 3:1 is the bar. |
+| `.admin-footer` — grey on the dark footer | 3.66 | 13.08 | `#666` → `#ccc`. |
+| `.table-empty` — grey on white | 4.48 | 5.74 | `#777` → `#666`. Four hundredths under the line is still under the line. |
+
+**Keyboard and semantics.** **[EXECUTED]** — across the five main pages, 113
+interactive elements: **0 keyboard-unreachable**, and after adding one label to the
+special-instructions textarea, **0 without an accessible name**.
+
+- The mobile menu button was `<button>☰</button>` with no name and no state. It now
+  carries `aria-label`, `aria-controls`, and `aria-expanded` that the JS keeps in
+  sync — **[EXECUTED]**: `false` → click → `true` → click → `false`.
+- The cart link was an emoji with no accessible name; it now has `aria-label="View
+  cart"`, with the emoji marked `aria-hidden` and the count badge labelled.
+- Checkout inputs relied on placeholders as labels. Every one now has a real
+  `<label for>`, an error slot, and `aria-invalid` when it fails validation.
+- A visible focus style (`3px solid var(--caramel)`) was added; the stylesheet
+  previously defined none at all.
+- Order-status selects in the admin table have visually-hidden labels.
+
+#### Responsive
+
+**[EXECUTED]** — every page at 360 / 768 / 1440 px: **no horizontal page scroll at
+any width**. The mobile menu toggle appears only below 768px. Wide admin tables
+scroll inside their own `.table-scroll` container at 360px rather than pushing the
+page sideways.
+
+#### CI
+
+`.github/workflows/tests.yml` runs three jobs on every push: pytest, vitest, and a
+link checker. Two of them exist because of specific defects in this audit:
+
+- **`alembic check`** fails if `models.py` drifts from the migrations — the same
+  class of problem as the §5 schema drift.
+- **The link job runs on `ubuntu-latest`**, which is case-sensitive. It is the check
+  that would have caught `admin.html` vs `Admin.html` before it reached a Linux host
+  (§3.2).
+
+**[EXECUTED]** — both checks pass locally: `No new upgrade operations detected`, and
+`broken references: 0`.

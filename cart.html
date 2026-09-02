@@ -30,12 +30,14 @@
             </ul>
           </nav>
           <div class="navbar-cart">
-            <a href="cart.html" class="cart-button active">
-              <span class="cart-icon">🛒</span>
-              <span class="cart-count" id="cartCount">0</span>
+            <a href="cart.html" class="cart-button active" aria-label="View cart">
+              <span class="cart-icon" aria-hidden="true">🛒</span>
+              <span class="cart-count" id="cartCount" aria-label="items in cart">0</span>
             </a>
           </div>
-          <button class="mobile-menu-button" id="mobileMenuButton">☰</button>
+          <button class="mobile-menu-button" id="mobileMenuButton"
+                  aria-expanded="false" aria-controls="mobileMenu"
+                  aria-label="Toggle navigation">☰</button>
         </div>
         <div class="mobile-menu" id="mobileMenu">
           <ul>

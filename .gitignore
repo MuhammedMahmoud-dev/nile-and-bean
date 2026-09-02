@@ -38,3 +38,9 @@ venv/
 
 # Local tooling
 .claude/
+
+# Node
+node_modules/
+
+# Scratch
+.commitmsg

@@ -6,6 +6,11 @@
   --coffee-medium: #6b4f35;
   --coffee-light: #8a6d4a;
   --caramel: #c87f0a;
+  /* Same hue, dark enough to read as body text on white. Measured: #c87f0a
+     gives 3.23:1 against white, under the 4.5 WCAG AA needs for normal text;
+     this gives 4.95:1. Keep --caramel for large text, borders and focus
+     rings, where 3:1 is the bar. */
+  --caramel-text: #9c6408;
   --cream: #f5f5dc;
   --white: #ffffff;
   
@@ -286,7 +291,11 @@ textarea {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  /* 0.6, not 0.5. The hero text sits on a photograph whose brightness we do
+     not control, so the scrim has to carry the contrast on its own. Against
+     a worst-case pure-white photo, 0.5 gives white text a ratio of 3.94 -
+     under the 4.5 that the 20px paragraph needs. 0.6 gives 5.74. */
+  background-color: rgba(0, 0, 0, 0.6);
 }
 
 .hero-content {
@@ -1054,7 +1063,7 @@ footer {
 
 .auth-hint a,
 .field-hint a {
-  color: var(--caramel);
+  color: var(--caramel-text);
   text-decoration: underline;
 }
 

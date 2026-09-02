@@ -68,7 +68,9 @@
 .admin-footer {
   text-align: center;
   padding: 2rem 1rem;
-  color: #666;
+  /* This footer inherits the dark background from css/styles.css, so #666 sat
+     at 3.66:1 against it. #ccc measures 13.08:1. */
+  color: #ccc;
   font-size: 0.9rem;
 }
 
@@ -160,7 +162,8 @@
 
 .table-empty {
   text-align: center;
-  color: #777;
+  /* #777 on white measures 4.48:1, just under the 4.5 AA needs. #666 is 5.74. */
+  color: #666;
   padding: 2rem 1rem;
 }
 

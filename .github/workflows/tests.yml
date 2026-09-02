@@ -1,0 +1,92 @@
+name: tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend (pytest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: |
+            Backend/requirements.txt
+            Backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Check the migration matches the models
+        # Autogenerate against an empty database and fail if Alembic wants to
+        # emit anything: that means models.py drifted from the migrations, the
+        # same class of problem as the schema drift recorded in AUDIT.md 5.
+        run: |
+          alembic upgrade head
+          alembic check
+
+      - name: Seed (proves seed_data.json still loads)
+        run: python seed.py
+
+      - name: Run tests
+        run: python -m pytest
+
+  frontend:
+    name: Frontend (vitest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  links:
+    name: Internal links resolve
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ubuntu-latest is case-sensitive, unlike the Windows machines this was
+      # built on. This is the check that would have caught admin.html vs
+      # Admin.html before it reached a Linux host (AUDIT.md 3.2).
+      - name: Every href points at a file that exists, case-exactly
+        run: |
+          set -eu
+          missing=0
+          for target in $(grep -rhoE 'href="[A-Za-z0-9._-]+\.html"' -- *.html | sed 's/href="//;s/"//' | sort -u); do
+            if [ ! -f "$target" ]; then
+              echo "::error::broken link target: $target"
+              missing=$((missing + 1))
+            fi
+          done
+          for asset in $(grep -rhoE '(src|href)="(js|css|assets)/[A-Za-z0-9._/-]+"' -- *.html | sed -E 's/^(src|href)="//;s/"$//' | sort -u); do
+            if [ ! -f "$asset" ]; then
+              echo "::error::missing asset: $asset"
+              missing=$((missing + 1))
+            fi
+          done
+          if [ "$missing" -gt 0 ]; then
+            echo "$missing broken reference(s)"
+            exit 1
+          fi
+          echo "all internal references resolve"
