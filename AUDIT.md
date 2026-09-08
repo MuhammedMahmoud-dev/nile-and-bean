@@ -644,15 +644,20 @@ comments"*. There is no management capability; the page is a static table.
   text, and the dynamically generated radio/checkbox options do carry `<label for>`.
 - **The eight admin pages do not share the site's design system.** They use a different
   navbar, a different footer, and large inline `<style>` blocks that redefine layout
-  rules already present in `css/styles.css`. **[INFERRED]** — *Moderate confidence* —
-  consistent with the admin section having been written by a different team member
-  working independently of the public pages.
+  rules already present in `css/styles.css`. The public pages and the admin pages were
+  evidently written to different conventions. *(An earlier revision of this document
+  speculated about which team member wrote which section. That inference is removed:
+  who wrote what is recorded in README.md from first-hand knowledge, not guessed from
+  code style.)*
 - **Two lockfiles for the same dead scaffold**: `bun.lockb` (198 KB) and
   `package-lock.json` (253 KB) are both committed, implying two package managers were
   used at different times.
 - **Committed build artifacts.** Eight `__pycache__/*.pyc` files are tracked.
-- **Footer team lists are inconsistent.** `cart.html` lists five names; `about.html`,
-  `menu.html` and `product.html` list three of the same five.
+- **Footer team lists are inconsistent.** `cart.html`, `about.html`, `menu.html` and
+  `product.html` each list the same five names, with one spelled two different ways
+  (`Mostafa Moahmed` / `Mostafa Mohamed`). `index.html` carries no Team column at all.
+  One contributor is also listed under a name other than the one they are credited
+  by in README.md, which is why the two lists do not match verbatim.
 
 ---
 

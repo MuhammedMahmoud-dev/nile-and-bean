@@ -11,12 +11,17 @@ Vanilla JavaScript frontend, FastAPI backend, SQLite.
 
 ## What this repository is
 
-This started as a **university software-engineering deliverable built by a team of
-five**: Muhammed Mahmoud Ahmed, Mohammed Mahmood Hamed, Mostafa Mohamed, Aliaa
-Nagdy and Menna Ahmed Reda. Their work is the first commit,
+This started as a **university software-engineering deliverable credited to a team of
+five**: Muhammed Mahmoud Ahmed, Ziad Mohamed, Mohammed Mahmood Hamed, Aliaa Nagdy and
+Menna Ahmed Reda. That deliverable is the first commit,
 [`41c611b`](../../commit/41c611b), imported unmodified.
 
-Everything after that first commit is **my own remediation work**, done solo. The
+Two of us wrote the code that shipped in it: **I built the backend, and Ziad Mohamed
+did the design and the frontend.** The FastAPI skeleton in that first commit was
+written by a third team member — it is neither mine nor Ziad's.
+
+Everything after that first commit — the audit, the removals, the bug fixes, the
+rebuilt API, the authentication, the tests — is **my own work, done solo**. The
 history is deliberately unsquashed so the two are separable: `git diff 41c611b HEAD`
 is exactly the boundary between what the team delivered and what I changed.
 
@@ -25,11 +30,12 @@ is exactly the boundary between what the team delivered and what I changed.
 Three codebases in one folder, only one of which ran:
 
 - **A static site that worked** — 13 hand-written HTML pages, ~960 lines of vanilla
-  JS, a 977-line stylesheet. This is what a visitor actually saw.
-- **A FastAPI skeleton that was never connected** — 138 lines. One of its four
-  endpoints did real work; two returned the literal string
-  `"List of products will be here"`. The frontend made **zero** network calls to it,
-  and its static mount pointed at a hardcoded absolute Windows path
+  JS, a 977-line stylesheet, designed and built by Ziad and me. This is what a
+  visitor actually saw.
+- **A FastAPI skeleton that was never connected** — 138 lines, written by a third
+  team member. One of its four endpoints did real work; two returned the literal
+  string `"List of products will be here"`. The frontend made **zero** network calls
+  to it, and its static mount pointed at a hardcoded absolute Windows path
   (`C:\Sw_project_Deliverable-_3-main`) belonging to a different directory.
 - **An unreachable generated scaffold** — a complete React + Vite + shadcn/ui
   application in `src/`, 73 files and 6,863 lines, produced by Lovable.dev. No HTML
@@ -295,6 +301,6 @@ known, just not permitted.
 
 ## Licence and attribution
 
-Coursework. The original team deliverable is preserved as the first commit and is
-their work; the remediation from the second commit onward is mine. Product
-photography is from Unsplash.
+Coursework. The team deliverable is preserved unmodified as the first commit and is
+credited to the five named above; the remediation from the second commit onward is
+mine alone. Product photography is from Unsplash.
