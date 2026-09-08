@@ -656,8 +656,9 @@ comments"*. There is no management capability; the page is a static table.
 - **Footer team lists are inconsistent.** `cart.html`, `about.html`, `menu.html` and
   `product.html` each list the same five names, with one spelled two different ways
   (`Mostafa Moahmed` / `Mostafa Mohamed`). `index.html` carries no Team column at all.
-  One contributor is also listed under a name other than the one they are credited
-  by in README.md, which is why the two lists do not match verbatim.
+  The contributor these footers name as "Mostafa Mohamed" is Ziad Mohamed, who is
+  credited under that name in README.md — which is why the two lists do not match
+  verbatim.
 
 ---
 

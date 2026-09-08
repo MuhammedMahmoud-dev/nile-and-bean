@@ -16,9 +16,8 @@ five**: Muhammed Mahmoud Ahmed, Ziad Mohamed, Mohammed Mahmood Hamed, Aliaa Nagd
 Menna Ahmed Reda. That deliverable is the first commit,
 [`41c611b`](../../commit/41c611b), imported unmodified.
 
-Two of us wrote the code that shipped in it: **I built the backend, and Ziad Mohamed
-did the design and the frontend.** The FastAPI skeleton in that first commit was
-written by a third team member — it is neither mine nor Ziad's.
+Two of us wrote the code: **I built the backend, Ziad Mohamed built the frontend and
+the design.**
 
 Everything after that first commit — the audit, the removals, the bug fixes, the
 rebuilt API, the authentication, the tests — is **my own work, done solo**. The
@@ -30,12 +29,12 @@ is exactly the boundary between what the team delivered and what I changed.
 Three codebases in one folder, only one of which ran:
 
 - **A static site that worked** — 13 hand-written HTML pages, ~960 lines of vanilla
-  JS, a 977-line stylesheet, designed and built by Ziad and me. This is what a
-  visitor actually saw.
-- **A FastAPI skeleton that was never connected** — 138 lines, written by a third
-  team member. One of its four endpoints did real work; two returned the literal
-  string `"List of products will be here"`. The frontend made **zero** network calls
-  to it, and its static mount pointed at a hardcoded absolute Windows path
+  JS, a 977-line stylesheet, designed and built by Ziad. This is what a visitor
+  actually saw.
+- **A FastAPI skeleton that was never connected** — 138 lines, my own. One of its four
+  endpoints did real work; two returned the literal string
+  `"List of products will be here"`. The frontend made **zero** network calls to it,
+  and its static mount pointed at a hardcoded absolute Windows path
   (`C:\Sw_project_Deliverable-_3-main`) belonging to a different directory.
 - **An unreachable generated scaffold** — a complete React + Vite + shadcn/ui
   application in `src/`, 73 files and 6,863 lines, produced by Lovable.dev. No HTML
