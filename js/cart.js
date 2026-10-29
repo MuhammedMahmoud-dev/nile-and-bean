@@ -1,223 +1,178 @@
+// The cart and checkout page.
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+  const NB = window.NileBean;
   const api = window.NileBeanAPI;
+  const $ = id => document.getElementById(id);
+  const esc = NB.escapeHtml;
 
-  // DOM elements
-  const cartItemsList = document.getElementById('cartItemsList');
-  const clearCartButton = document.getElementById('clearCartButton');
-  const checkoutButton = document.getElementById('checkoutButton');
-  const backToCartButton = document.getElementById('backToCartButton');
-  const placeOrderButton = document.getElementById('placeOrderButton');
-  const subtotalElement = document.getElementById('subtotal');
-  const taxElement = document.getElementById('tax');
-  const totalElement = document.getElementById('total');
-  const checkoutSubtotalElement = document.getElementById('checkoutSubtotal');
-  const checkoutTaxElement = document.getElementById('checkoutTax');
-  const checkoutTotalElement = document.getElementById('checkoutTotal');
-  const checkoutItemsElement = document.getElementById('checkoutItems');
-  const pageTitle = document.getElementById('pageTitle');
-
-  // Page elements
-  const emptyCartElement = document.getElementById('emptyCart');
-  const cartContentElement = document.getElementById('cartContent');
-  const checkoutFormElement = document.getElementById('checkoutForm');
-
-  // Checkout form elements
-  const orderTypeRadios = document.querySelectorAll('input[name="orderType"]');
-  const deliveryAddressElement = document.getElementById('deliveryAddress');
-  const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
-  const cardDetailsElement = document.getElementById('cardDetails');
-  const checkoutError = document.getElementById('checkoutError');
-  const checkoutNotice = document.getElementById('checkoutNotice');
-
-  // Display only. The server computes the authoritative total from the product
-  // rows, so a total sent by this page would be ignored.
-  const TAX_RATE = window.NileBean.TAX_RATE;
+  const empty = $('emptyCart');
+  const content = $('cartContent');
+  const checkout = $('checkoutForm');
+  const list = $('cartItemsList');
+  const checkoutError = $('checkoutError');
+  const checkoutNotice = $('checkoutNotice');
 
   // The cart lives in main.js. This file used to parse its own copy out of
   // localStorage, so mutations made through NileBean were invisible here and
   // the UI never updated (AUDIT.md section 2.2). Always read it fresh.
-  const cart = () => window.NileBean.getCart();
+  const cart = () => NB.getCart();
 
-  // -------------------------------------------------------------------------
-  // Rendering
-  // -------------------------------------------------------------------------
+  // ----- view switching --------------------------------------------------
 
-  function initCartPage() {
+  function setTitle(en, ar) {
+    $('pageTitle').textContent = en;
+    $('pageTitleAr').textContent = ar;
+  }
+
+  function showCart() {
+    checkout.classList.add('hidden');
+    setTitle('Your cart', 'السلة');
     if (cart().length === 0) {
-      emptyCartElement.classList.remove('hidden');
-      cartContentElement.classList.add('hidden');
-      checkoutFormElement.classList.add('hidden');
-      // Drop the rendered rows rather than just hiding their container, so
-      // stale line items cannot linger in the DOM.
-      if (cartItemsList) cartItemsList.innerHTML = '';
-    } else {
-      emptyCartElement.classList.add('hidden');
-      cartContentElement.classList.remove('hidden');
-      checkoutFormElement.classList.add('hidden');
+      empty.classList.remove('hidden');
+      content.classList.add('hidden');
+      list.innerHTML = '';
+      return;
+    }
+    empty.classList.add('hidden');
+    content.classList.remove('hidden');
+    renderLines();
+    guardLinePhotos();
+    renderTotals();
+  }
 
-      renderCartItems();
-      updateOrderSummary();
+  function showCheckout() {
+    content.classList.add('hidden');
+    checkout.classList.remove('hidden');
+    setTitle('Checkout', 'الدفع');
+    renderCheckoutItems();
+    renderTotals();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Ordering requires an account, because an order belongs to someone.
+    if (!api.isLoggedIn()) {
+      checkoutNotice.innerHTML =
+        'You will need to <a href="login.html?next=cart.html" style="color: var(--saffron)">sign in</a> to place this order. Your cart is kept.';
+    } else {
+      const user = api.getUser();
+      checkoutNotice.textContent = `Ordering as ${user.username}.`;
+      if (!$('fullName').value) $('fullName').value = user.full_name || '';
+      if (!$('email').value) $('email').value = user.email || '';
     }
   }
 
-  function renderCartItems() {
-    if (!cartItemsList) return;
+  // ----- rendering -------------------------------------------------------
 
-    cartItemsList.innerHTML = '';
+  function optionChips(item) {
+    const chips = [];
+    if (item.size) chips.push(item.size);
+    if (item.sugar) {
+      const ar = NB.SUGAR_AR[item.sugar];
+      chips.push(ar ? `${item.sugar.split(' · ')[0]} · ${ar}` : item.sugar);
+    }
+    if (item.milk) chips.push(`${item.milk} milk`);
+    (item.extras || []).forEach(e => chips.push(`+ ${e}`));
+    return chips.map(c => `<span class="chip">${esc(c)}</span>`).join('');
+  }
 
-    cart().forEach((item, index) => {
-      const cartItemElement = document.createElement('div');
-      cartItemElement.className = 'cart-item';
-
-      let optionsList = '';
-      if (item.size) optionsList += `<div>Size: ${item.size}</div>`;
-      if (item.milk) optionsList += `<div>Milk: ${item.milk}</div>`;
-      if (item.extras && item.extras.length > 0) {
-        optionsList += `<div>Extras: ${item.extras.join(', ')}</div>`;
-      }
-      if (item.specialInstructions) {
-        optionsList += `<div>Notes: ${item.specialInstructions}</div>`;
-      }
-
-      // getLineTotal uses the unit price the customer was shown, which
-      // includes size and extras. This used to bill item.price, the base
-      // price, discarding every upcharge (AUDIT.md section 2.3).
-      const lineTotal = window.NileBean.getLineTotal(item);
-
-      cartItemElement.innerHTML = `
-        <img src="${item.image}" alt="${item.name}" class="cart-item-image">
-        <div class="cart-item-details">
-          <div class="cart-item-header">
-            <div class="cart-item-title">${item.name}</div>
-            <div class="cart-item-price">$${lineTotal.toFixed(2)}</div>
-          </div>
-          <div class="cart-item-options">
-            ${optionsList}
-          </div>
-          <div class="cart-item-actions">
-            <div class="cart-quantity-selector">
-              <button class="quantity-btn cart-quantity-btn decrease-btn" data-index="${index}"
-                      aria-label="Decrease quantity of ${item.name}">-</button>
-              <span aria-label="Quantity">${item.quantity}</span>
-              <button class="quantity-btn cart-quantity-btn increase-btn" data-index="${index}"
-                      aria-label="Increase quantity of ${item.name}">+</button>
+  function renderLines() {
+    list.innerHTML = cart()
+      .map(
+        (item, index) => `
+      <div class="cart-line">
+        <img class="cart-line__photo" src="${esc(NB.imageUrl(item.image, 200, '1:1'))}" alt="" width="96" height="96" loading="lazy" decoding="async">
+        <div>
+          ${item.nameAr ? `<div class="cart-line__ar" lang="ar" dir="rtl">${esc(item.nameAr)}</div>` : ''}
+          <div class="cart-line__name">${esc(item.name)}</div>
+          <div class="cart-line__opts">${optionChips(item)}</div>
+          ${item.specialInstructions ? `<p class="cart-line__note">Note: ${esc(item.specialInstructions)}</p>` : ''}
+          <div class="cart-line__controls">
+            <div class="qty" role="group" aria-label="Quantity of ${esc(item.name)}">
+              <button type="button" data-action="dec" data-index="${index}" aria-label="Decrease quantity of ${esc(item.name)}"${item.quantity <= 1 ? ' disabled' : ''}>${NB.icon('minus')}</button>
+              <output aria-live="polite">${item.quantity}</output>
+              <button type="button" data-action="inc" data-index="${index}" aria-label="Increase quantity of ${esc(item.name)}">${NB.icon('plus')}</button>
             </div>
-            <button class="remove-button" data-index="${index}"
-                    aria-label="Remove ${item.name} from cart">Remove</button>
+            <button type="button" class="link-btn" data-action="remove" data-index="${index}">
+              ${NB.icon('trash')} Remove<span class="visually-hidden"> ${esc(item.name)}</span>
+            </button>
           </div>
         </div>
-      `;
+        <div class="cart-line__price">${esc(NB.formatEGP(NB.getLineTotal(item)))}</div>
+      </div>`
+      )
+      .join('');
+  }
 
-      cartItemsList.appendChild(cartItemElement);
-    });
-
-    cartItemsList.querySelectorAll('.decrease-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const index = parseInt(this.getAttribute('data-index'));
-        const item = cart()[index];
-        if (item && item.quantity > 1) {
-          window.NileBean.updateCartItem(index, { quantity: item.quantity - 1 });
-          renderCartItems();
-          updateOrderSummary();
-        }
-      });
-    });
-
-    cartItemsList.querySelectorAll('.increase-btn').forEach(button => {
-      button.addEventListener('click', function() {
-        const index = parseInt(this.getAttribute('data-index'));
-        const item = cart()[index];
-        if (item) {
-          window.NileBean.updateCartItem(index, { quantity: item.quantity + 1 });
-          renderCartItems();
-          updateOrderSummary();
-        }
-      });
-    });
-
-    cartItemsList.querySelectorAll('.remove-button').forEach(button => {
-      button.addEventListener('click', function() {
-        const index = parseInt(this.getAttribute('data-index'));
-        window.NileBean.removeCartItem(index);
-
-        // cart() is read fresh, so this now correctly reaches zero and the
-        // empty-cart state becomes reachable without a page reload.
-        if (cart().length === 0) {
-          initCartPage();
-        } else {
-          renderCartItems();
-          updateOrderSummary();
-        }
-      });
+  // A dead photo link becomes a name plate rather than a broken-image box.
+  function guardLinePhotos() {
+    list.querySelectorAll('.cart-line').forEach((row, i) => {
+      NB.guardPhoto(row.querySelector('img'), cart()[i]);
     });
   }
 
-  function updateOrderSummary() {
-    const subtotal = window.NileBean.getCartSubtotal();
-    const tax = subtotal * TAX_RATE;
+  function renderTotals() {
+    const subtotal = NB.getCartSubtotal();
+    const tax = Math.round(subtotal * NB.TAX_RATE * 100) / 100;
     const total = subtotal + tax;
-
-    if (subtotalElement) subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-    if (taxElement) taxElement.textContent = `$${tax.toFixed(2)}`;
-    if (totalElement) totalElement.textContent = `$${total.toFixed(2)}`;
-
-    if (checkoutSubtotalElement) checkoutSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-    if (checkoutTaxElement) checkoutTaxElement.textContent = `$${tax.toFixed(2)}`;
-    if (checkoutTotalElement) checkoutTotalElement.textContent = `$${total.toFixed(2)}`;
+    [['subtotal', subtotal], ['tax', tax], ['total', total],
+     ['checkoutSubtotal', subtotal], ['checkoutTax', tax], ['checkoutTotal', total]]
+      .forEach(([id, value]) => { $(id).textContent = NB.formatEGP(value); });
   }
 
   function renderCheckoutItems() {
-    if (!checkoutItemsElement) return;
-
-    checkoutItemsElement.innerHTML = '';
-
-    cart().forEach(item => {
-      const checkoutItem = document.createElement('div');
-      checkoutItem.className = 'checkout-item';
-      checkoutItem.innerHTML = `
-        <span>${item.quantity}x ${item.name}</span>
-        <span>$${window.NileBean.getLineTotal(item).toFixed(2)}</span>
-      `;
-      checkoutItemsElement.appendChild(checkoutItem);
-    });
+    $('checkoutItems').innerHTML = cart()
+      .map(
+        item => `
+      <div class="summary__line">
+        <span>${item.quantity} &times; ${esc(item.name)}</span>
+        <span>${esc(NB.formatEGP(NB.getLineTotal(item)))}</span>
+      </div>`
+      )
+      .join('');
   }
 
-  // -------------------------------------------------------------------------
-  // Validation
-  // -------------------------------------------------------------------------
-  // The checkout form previously had no validation of any kind, and nothing
-  // read what was typed into it (AUDIT.md section 6.5).
+  // One delegated listener for every line control, attached once.
+  list.addEventListener('click', event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const index = Number(button.dataset.index);
+    const item = cart()[index];
+    if (!item) return;
+
+    if (button.dataset.action === 'inc') NB.updateCartItem(index, { quantity: Math.min(item.quantity + 1, 99) });
+    if (button.dataset.action === 'dec' && item.quantity > 1) NB.updateCartItem(index, { quantity: item.quantity - 1 });
+    if (button.dataset.action === 'remove') NB.removeCartItem(index);
+
+    showCart();
+    // Keep keyboard focus on the same control after the re-render.
+    const again = list.querySelector(`button[data-action="${button.dataset.action}"][data-index="${index}"]`);
+    if (again && !again.disabled) again.focus();
+  });
+
+  // ----- validation ------------------------------------------------------
+  // The checkout form originally had no validation and nothing read what was
+  // typed into it (AUDIT.md section 6.5).
+
+  const value = id => ($(id)?.value || '').trim();
+  const selected = name => document.querySelector(`input[name="${name}"]:checked`)?.value || null;
 
   function clearErrors() {
     checkoutError.textContent = '';
     checkoutError.classList.add('hidden');
-    checkoutFormElement.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; });
-    checkoutFormElement.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+    checkout.querySelectorAll('.field-error').forEach(el => { el.textContent = ''; });
+    checkout.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
   }
 
   function showFormError(message) {
     checkoutError.textContent = message;
     checkoutError.classList.remove('hidden');
-    checkoutError.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
-  function fieldError(id, message) {
-    const slot = document.getElementById(`${id}Error`);
-    if (slot) slot.textContent = message;
-    document.getElementById(id)?.setAttribute('aria-invalid', 'true');
-  }
-
-  const value = id => (document.getElementById(id)?.value || '').trim();
-  const selectedRadio = name =>
-    document.querySelector(`input[name="${name}"]:checked`)?.value || null;
-
-  function validateCheckout() {
+  function validate() {
     clearErrors();
     const errors = [];
-
-    const orderType = selectedRadio('orderType');
-    const paymentMethod = selectedRadio('paymentMethod');
+    const orderType = selected('orderType');
+    const payment = selected('paymentMethod');
 
     if (!value('fullName')) errors.push(['fullName', 'Enter your full name.']);
 
@@ -232,159 +187,110 @@ document.addEventListener('DOMContentLoaded', function() {
     if (orderType === 'delivery') {
       if (!value('street')) errors.push(['street', 'Enter a street address for delivery.']);
       if (!value('city')) errors.push(['city', 'Enter a city.']);
-      if (!value('zipCode')) errors.push(['zipCode', 'Enter a zip code.']);
+      if (!value('zipCode')) errors.push(['zipCode', 'Enter a postal code.']);
     }
 
-    if (paymentMethod === 'card') {
-      // No card is charged; these checks only stop obviously wrong input from
-      // being submitted. Card details are never sent anywhere.
+    if (payment === 'card') {
+      // No card is charged; these only stop obviously wrong input. Card
+      // details are never sent anywhere.
       const number = value('cardNumber').replace(/[\s-]/g, '');
       if (!number) errors.push(['cardNumber', 'Enter a card number.']);
       else if (!/^\d{12,19}$/.test(number)) errors.push(['cardNumber', 'A card number is 12 to 19 digits.']);
-
       const expiry = value('cardExpiry');
       if (!expiry) errors.push(['cardExpiry', 'Enter the expiry date.']);
-      else if (!/^(0[1-9]|1[0-2])\s*\/\s*\d{2}$/.test(expiry)) {
-        errors.push(['cardExpiry', 'Use MM/YY.']);
-      }
-
+      else if (!/^(0[1-9]|1[0-2])\s*\/\s*\d{2}$/.test(expiry)) errors.push(['cardExpiry', 'Use MM/YY.']);
       const cvc = value('cardCvc');
       if (!cvc) errors.push(['cardCvc', 'Enter the CVC.']);
       else if (!/^\d{3,4}$/.test(cvc)) errors.push(['cardCvc', 'A CVC is 3 or 4 digits.']);
-
       if (!value('cardName')) errors.push(['cardName', 'Enter the name on the card.']);
     }
 
-    errors.forEach(([id, message]) => fieldError(id, message));
+    errors.forEach(([id, message]) => {
+      $(`${id}Error`).textContent = message;
+      $(id).setAttribute('aria-invalid', 'true');
+    });
 
-    if (errors.length > 0) {
-      showFormError(`Please correct ${errors.length} field${errors.length === 1 ? '' : 's'} below.`);
-      document.getElementById(errors[0][0])?.focus();
+    if (errors.length) {
+      showFormError(`Please correct ${errors.length} field${errors.length === 1 ? '' : 's'}.`);
+      $(errors[0][0]).focus();
       return null;
     }
 
     return {
       order_type: orderType,
-      payment_method: paymentMethod,
+      payment_method: payment,
       contact_name: value('fullName'),
       contact_phone: phone,
       contact_email: email,
       address_street: orderType === 'delivery' ? value('street') : null,
       address_city: orderType === 'delivery' ? value('city') : null,
       address_zip: orderType === 'delivery' ? value('zipCode') : null,
-      // Only what was chosen and how many. No price is sent: the server prices
-      // every line from the product rows.
+      // What and how many, never a price: the server prices every line.
       items: cart().map(item => ({
         product_slug: item.id,
         quantity: item.quantity,
         size: item.size || null,
         milk: item.milk || null,
+        sugar: item.sugar || null,
         extras: item.extras || [],
         special_instructions: item.specialInstructions || null
       }))
     };
   }
 
-  // -------------------------------------------------------------------------
-  // Events
-  // -------------------------------------------------------------------------
+  // ----- events ----------------------------------------------------------
 
-  function showCheckout() {
-    cartContentElement.classList.add('hidden');
-    checkoutFormElement.classList.remove('hidden');
-    if (pageTitle) pageTitle.textContent = 'Checkout';
-    renderCheckoutItems();
-    updateOrderSummary();
+  $('clearCartButton').addEventListener('click', () => {
+    NB.clearCart();
+    showCart();
+  });
 
-    // Ordering requires an account, because an order belongs to someone.
+  $('checkoutButton').addEventListener('click', showCheckout);
+  $('backToCartButton').addEventListener('click', showCart);
+
+  document.querySelectorAll('input[name="orderType"]').forEach(radio =>
+    radio.addEventListener('change', () => {
+      $('deliveryAddress').classList.toggle('hidden', selected('orderType') !== 'delivery');
+    })
+  );
+
+  document.querySelectorAll('input[name="paymentMethod"]').forEach(radio =>
+    radio.addEventListener('change', () => {
+      $('cardDetails').classList.toggle('hidden', selected('paymentMethod') !== 'card');
+    })
+  );
+
+  checkout.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (cart().length === 0) return showFormError('Your cart is empty.');
     if (!api.isLoggedIn()) {
-      checkoutNotice.innerHTML =
-        'You will need to <a href="login.html?next=cart.html">sign in</a> to place this order.';
-    } else {
-      const user = api.getUser();
-      checkoutNotice.textContent = `Ordering as ${user.username}.`;
-      // Pre-fill what we already know about them.
-      const nameField = document.getElementById('fullName');
-      const emailField = document.getElementById('email');
-      if (nameField && !nameField.value) nameField.value = user.full_name || '';
-      if (emailField && !emailField.value) emailField.value = user.email || '';
-    }
-  }
-
-  function setupEventListeners() {
-    if (clearCartButton) {
-      clearCartButton.addEventListener('click', function() {
-        window.NileBean.clearCart();
-        initCartPage();
-      });
+      window.location.href = 'login.html?next=cart.html';
+      return;
     }
 
-    if (checkoutButton) checkoutButton.addEventListener('click', showCheckout);
+    const payload = validate();
+    if (!payload) return;
 
-    if (backToCartButton) {
-      backToCartButton.addEventListener('click', function() {
-        cartContentElement.classList.remove('hidden');
-        checkoutFormElement.classList.add('hidden');
-        if (pageTitle) pageTitle.textContent = 'Your Cart';
-      });
+    const button = $('placeOrderButton');
+    const original = button.innerHTML;
+    button.disabled = true;
+    button.textContent = 'Placing your order...';
+
+    try {
+      const order = await api.createOrder(payload);
+      NB.clearCart();
+      // The confirmation shows the server's total, not this page's preview.
+      window.location.href = `order.html?id=${order.id}&placed=1`;
+    } catch (err) {
+      if (err.status === 401) {
+        window.location.href = 'login.html?next=cart.html';
+        return;
+      }
+      showFormError(err.message);
+      button.disabled = false;
+      button.innerHTML = original;
     }
+  });
 
-    if (placeOrderButton) {
-      placeOrderButton.addEventListener('click', async function() {
-        if (cart().length === 0) {
-          showFormError('Your cart is empty.');
-          return;
-        }
-
-        if (!api.isLoggedIn()) {
-          window.location.href = 'login.html?next=cart.html';
-          return;
-        }
-
-        const payload = validateCheckout();
-        if (!payload) return;
-
-        const original = placeOrderButton.textContent;
-        placeOrderButton.disabled = true;
-        placeOrderButton.textContent = 'Placing order...';
-
-        try {
-          const order = await api.createOrder(payload);
-          window.NileBean.clearCart();
-          // The server's total is the real one; show that, not our preview.
-          window.NileBean.showToast(`Order #${order.id} placed - $${Number(order.total).toFixed(2)}`);
-          window.location.href = `index.html?ordered=${order.id}`;
-        } catch (err) {
-          if (err.status === 401) {
-            window.location.href = 'login.html?next=cart.html';
-            return;
-          }
-          // Surface what the server actually said, including per-field
-          // validation messages, rather than a generic failure.
-          showFormError(err.message);
-        } finally {
-          placeOrderButton.disabled = false;
-          placeOrderButton.textContent = original;
-        }
-      });
-    }
-
-    orderTypeRadios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        deliveryAddressElement.classList.toggle('hidden', this.value !== 'delivery');
-      });
-    });
-
-    paymentMethodRadios.forEach(radio => {
-      radio.addEventListener('change', function() {
-        cardDetailsElement.classList.toggle('hidden', this.value !== 'card');
-      });
-    });
-  }
-
-  // Listeners are attached once, to elements that are never re-created.
-  // initCartPage() re-renders the list, so wiring them there attached a fresh
-  // duplicate set on every render.
-  setupEventListeners();
-  initCartPage();
+  showCart();
 });

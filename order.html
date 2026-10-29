@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your order, Nile &amp; Bean</title>
+    <meta name="description" content="Your Nile &amp; Bean order." />
+    <meta name="theme-color" content="#1c3f94" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/aref-ruqaa-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/readex-pro-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Motion is opt-in: without JS every element renders in its final state. -->
+    <script>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="demo-strip">
+      <strong>Portfolio demo.</strong> Orders and payments are simulated: nothing is charged, made or delivered.
+    </div>
+
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="brand plate" href="index.html" aria-label="Nile and Bean, home">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html" aria-current="page">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a class="nav-plate account-plate" id="accountNav" href="login.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span>
+          </a>
+          <a class="cart-plate" href="cart.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg><span class="cart-label">Cart</span>
+            <span class="cart-count" id="cartCount">0</span><span class="visually-hidden"> items</span>
+          </a>
+          <button class="menu-toggle" id="mobileMenuButton" type="button"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu wrap" id="mobileMenu" aria-label="Main, mobile">
+        <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html" aria-current="page">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          <li><a class="nav-plate" id="accountNavMobile" href="login.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" class="wrap">
+      <div class="ticket" style="padding-top: 2.5rem">
+        <div id="orderLoading" class="state-message" role="status"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#receipt"></use></svg><p>Fetching your order...</p></div>
+
+        <div id="orderError" class="state-message state-error hidden" role="alert">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#alert"></use></svg>
+          <h2 id="orderErrorTitle">We couldn't load that order</h2>
+          <p id="orderErrorText"></p>
+          <a class="btn btn--enamel" href="orders.html">Go to my orders</a>
+        </div>
+
+        <div id="orderTicket" class="hidden">
+          <div class="ticket__number plate rivets on-dark">
+            <span class="ar" id="ticketLeadAr" lang="ar" dir="rtl"></span>
+            <h1 id="ticketNo">Order</h1>
+            <p id="ticketLead">Thank you. Your order is in.</p>
+          </div>
+
+          <section class="panel" style="margin-top: 1.5rem" aria-labelledby="ticketStatusTitle">
+            <h2 id="ticketStatusTitle">Details <span class="ar" lang="ar" dir="rtl">التفاصيل</span></h2>
+            <dl class="ticket__meta" id="ticketMeta"></dl>
+          </section>
+
+          <section class="panel" aria-labelledby="ticketItemsTitle">
+            <h2 id="ticketItemsTitle">Items <span class="ar" lang="ar" dir="rtl">الطلبات</span></h2>
+            <div id="ticketItems"></div>
+            <div id="ticketTotals" class="totals"></div>
+          </section>
+
+          <div class="ticket__actions">
+            <a class="btn btn--enamel" href="orders.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#receipt"></use></svg> All my orders</a>
+            <a class="btn btn--white" href="menu.html">Order something else</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer on-dark">
+      <div class="wrap">
+        <div class="site-footer__grid">
+          <div>
+            <span class="site-footer__name">
+              <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+              <span class="brand__en">NILE &amp; BEAN</span>
+            </span>
+            <p style="margin-top: 1rem; max-width: 42ch">
+              An Egyptian café's ordering site, built as a portfolio project. Orders and payments are simulated.
+            </p>
+          </div>
+          <div>
+            <h2>Visit</h2>
+            <ul>
+              <li><a href="menu.html">The menu</a></li>
+              <li><a href="orders.html">My orders</a></li>
+              <li><a href="about.html">About &amp; contact</a></li>
+              <li><a href="login.html">Sign in</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Team</h2>
+            <ul>
+              <li>Muhammed Mahmoud Ahmed</li>
+              <li>Ziad Mohamed</li>
+              <li>Mohammed Mahmood Hamed</li>
+              <li>Aliaa Nagdy</li>
+              <li>Menna Ahmed Reda</li>
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__base">
+          <span>&copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.</span>
+          <span>Photography from Unsplash.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/order.js"></script>
+  </body>
+</html>

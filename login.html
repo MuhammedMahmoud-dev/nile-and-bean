@@ -2,147 +2,172 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In - Nile &amp; Bean</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in, Nile &amp; Bean</title>
     <meta name="description" content="Sign in to your Nile &amp; Bean account to place an order." />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="theme-color" content="#1c3f94" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/aref-ruqaa-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/readex-pro-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Motion is opt-in: without JS every element renders in its final state. -->
+    <script>document.documentElement.classList.add('js');</script>
   </head>
-
   <body>
-    <div id="root">
-      <header class="navbar">
-        <div class="navbar-container">
-          <div class="navbar-logo">
-            <a href="index.html">Nile &amp; Bean</a>
-          </div>
-          <nav class="navbar-nav">
-            <ul>
-              <li><a href="index.html">Home</a></li>
-              <li><a href="menu.html">Menu</a></li>
-              <li><a href="about.html">About Us</a></li>
-              <li data-admin-only hidden><a href="admin.html">Admin</a></li>
-              <li id="accountNav"></li>
-            </ul>
-          </nav>
-          <div class="navbar-cart">
-            <a href="cart.html" class="cart-button" aria-label="View cart">
-              <span class="cart-icon" aria-hidden="true">&#128722;</span>
-              <span class="cart-count" id="cartCount">0</span>
-            </a>
-          </div>
-          <button class="mobile-menu-button" id="mobileMenuButton"
-                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Toggle navigation">&#9776;</button>
-        </div>
-        <div class="mobile-menu" id="mobileMenu">
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Menu</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="cart.html">Cart</a></li>
-          </ul>
-        </div>
-      </header>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-      <main>
-        <section class="coffee-section">
-          <div class="auth-container">
-            <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
-              <button type="button" class="auth-tab active" id="tabSignIn"
-                      role="tab" aria-selected="true" aria-controls="signInPanel">Sign In</button>
-              <button type="button" class="auth-tab" id="tabRegister"
-                      role="tab" aria-selected="false" aria-controls="registerPanel">Create Account</button>
-            </div>
-
-            <p class="form-error hidden" id="authError" role="alert"></p>
-
-            <!-- Sign in -->
-            <form id="signInPanel" class="auth-form" role="tabpanel" aria-labelledby="tabSignIn" novalidate>
-              <h1>Welcome back</h1>
-
-              <div class="form-group">
-                <label for="loginUsername">Username</label>
-                <input type="text" id="loginUsername" name="username" class="text-input"
-                       autocomplete="username" required>
-                <span class="field-error" id="loginUsernameError"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="loginPassword">Password</label>
-                <input type="password" id="loginPassword" name="password" class="text-input"
-                       autocomplete="current-password" required>
-                <span class="field-error" id="loginPasswordError"></span>
-              </div>
-
-              <button type="submit" class="button full-width" id="signInButton">Sign In</button>
-
-              <p class="auth-hint">
-                Forgotten your password? <a href="reset-password.html">Reset it</a>.
-              </p>
-            </form>
-
-            <!-- Register -->
-            <form id="registerPanel" class="auth-form hidden" role="tabpanel" aria-labelledby="tabRegister" novalidate>
-              <h1>Create your account</h1>
-
-              <div class="form-group">
-                <label for="regUsername">Username</label>
-                <input type="text" id="regUsername" name="username" class="text-input"
-                       autocomplete="username" required minlength="3" maxlength="50">
-                <span class="field-error" id="regUsernameError"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="regEmail">Email address</label>
-                <input type="email" id="regEmail" name="email" class="text-input"
-                       autocomplete="email" required>
-                <span class="field-error" id="regEmailError"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="regFullName">Full name <span class="optional">(optional)</span></label>
-                <input type="text" id="regFullName" name="full_name" class="text-input"
-                       autocomplete="name" maxlength="120">
-                <span class="field-error" id="regFullNameError"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="regPassword">Password</label>
-                <input type="password" id="regPassword" name="password" class="text-input"
-                       autocomplete="new-password" required minlength="8">
-                <span class="field-hint">At least 8 characters.</span>
-                <span class="field-error" id="regPasswordError"></span>
-              </div>
-
-              <button type="submit" class="button full-width" id="registerButton">Create Account</button>
-            </form>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <div class="coffee-container">
-          <div class="footer-grid">
-            <div class="footer-column">
-              <h3>Nile &amp; Bean</h3>
-              <p>Making coffee ordering feel as warm and personal as visiting your favorite caf&eacute;.</p>
-              <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
-            </div>
-            <div class="footer-column">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="menu.html">Menu</a></li>
-                <li><a href="about.html">About Us</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+    <div class="demo-strip">
+      <strong>Portfolio demo.</strong> Orders and payments are simulated: nothing is charged, made or delivered.
     </div>
+
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="brand plate" href="index.html" aria-label="Nile and Bean, home">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a class="nav-plate account-plate" id="accountNav" href="login.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span>
+          </a>
+          <a class="cart-plate" href="cart.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg><span class="cart-label">Cart</span>
+            <span class="cart-count" id="cartCount">0</span><span class="visually-hidden"> items</span>
+          </a>
+          <button class="menu-toggle" id="mobileMenuButton" type="button"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu wrap" id="mobileMenu" aria-label="Main, mobile">
+        <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          <li><a class="nav-plate" id="accountNavMobile" href="login.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" class="narrow">
+      <div class="sign-heading" style="margin-bottom: 1.5rem">
+        <span class="ar" lang="ar" dir="rtl">أهلاً</span>
+        <h1>Welcome</h1>
+      </div>
+
+      <div class="panel">
+        <div class="auth-tabs" role="tablist" aria-label="Sign in or create an account">
+          <button type="button" class="auth-tab active" id="tabSignIn" role="tab"
+                  aria-selected="true" aria-controls="signInPanel">Sign in</button>
+          <button type="button" class="auth-tab" id="tabRegister" role="tab"
+                  aria-selected="false" aria-controls="registerPanel">Create account</button>
+        </div>
+
+        <p class="form-error hidden" id="authError" role="alert"></p>
+
+        <form id="signInPanel" role="tabpanel" aria-labelledby="tabSignIn" novalidate>
+          
+            <div class="form-group">
+              <label for="loginUsername">Username</label>
+              <input type="text" id="loginUsername" class="field text-input" autocomplete="username" required />
+              <span class="field-error" id="loginUsernameError"></span>
+            </div>
+          
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" class="field text-input" autocomplete="current-password" required />
+              <span class="field-error" id="loginPasswordError"></span>
+            </div>
+          <button type="submit" class="btn btn--red btn--block" id="signInButton">Sign in</button>
+          <p class="auth-hint">Forgotten your password? <a href="reset-password.html">Here's how to reset it</a>.</p>
+          <p class="auth-hint">Trying the demo? Sign in as <strong>sarah</strong> / <strong>customer-password-123</strong>,
+            or <strong>admin</strong> / <strong>admin-password-123</strong> for the admin side.</p>
+        </form>
+
+        <form id="registerPanel" class="hidden" role="tabpanel" aria-labelledby="tabRegister" novalidate>
+          
+            <div class="form-group">
+              <label for="regUsername">Username</label>
+              <input type="text" id="regUsername" class="field text-input" autocomplete="username" required minlength="3" maxlength="50" />
+              <span class="field-hint">Letters, numbers, dots, dashes and underscores.</span><span class="field-error" id="regUsernameError"></span>
+            </div>
+          
+            <div class="form-group">
+              <label for="regEmail">Email</label>
+              <input type="email" id="regEmail" class="field text-input" autocomplete="email" required />
+              <span class="field-error" id="regEmailError"></span>
+            </div>
+          
+            <div class="form-group">
+              <label for="regFullName">Full name <span class="optional">(optional)</span></label>
+              <input type="text" id="regFullName" class="field text-input" autocomplete="name" maxlength="120" />
+              <span class="field-error" id="regFullNameError"></span>
+            </div>
+          
+            <div class="form-group">
+              <label for="regPassword">Password</label>
+              <input type="password" id="regPassword" class="field text-input" autocomplete="new-password" required minlength="8" />
+              <span class="field-hint">At least 8 characters.</span><span class="field-error" id="regPasswordError"></span>
+            </div>
+          <button type="submit" class="btn btn--red btn--block" id="registerButton">Create account</button>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer on-dark">
+      <div class="wrap">
+        <div class="site-footer__grid">
+          <div>
+            <span class="site-footer__name">
+              <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+              <span class="brand__en">NILE &amp; BEAN</span>
+            </span>
+            <p style="margin-top: 1rem; max-width: 42ch">
+              An Egyptian café's ordering site, built as a portfolio project. Orders and payments are simulated.
+            </p>
+          </div>
+          <div>
+            <h2>Visit</h2>
+            <ul>
+              <li><a href="menu.html">The menu</a></li>
+              <li><a href="orders.html">My orders</a></li>
+              <li><a href="about.html">About &amp; contact</a></li>
+              <li><a href="login.html">Sign in</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Team</h2>
+            <ul>
+              <li>Muhammed Mahmoud Ahmed</li>
+              <li>Ziad Mohamed</li>
+              <li>Mohammed Mahmood Hamed</li>
+              <li>Aliaa Nagdy</li>
+              <li>Menna Ahmed Reda</li>
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__base">
+          <span>&copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.</span>
+          <span>Photography from Unsplash.</span>
+        </div>
+      </div>
+    </footer>
 
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>

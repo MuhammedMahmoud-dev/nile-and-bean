@@ -213,6 +213,7 @@
 
     // Orders
     createOrder: order => request('/api/orders', { method: 'POST', body: order, auth: true }),
+    getOrder: id => request(`/api/orders/${encodeURIComponent(id)}`, { auth: true }),
     listMyOrders: () => request('/api/orders/me', { auth: true }),
     listAllOrders: () => request('/api/orders', { auth: true }),
     setOrderStatus: (id, status) =>
@@ -222,6 +223,14 @@
     listUsers: () => request('/api/users', { auth: true }),
     updateUser: (id, data) => request(`/api/users/${id}`, { method: 'PATCH', body: data, auth: true }),
     deleteUser: id => request(`/api/users/${id}`, { method: 'DELETE', auth: true }),
+    resetPassword: id => request(`/api/users/${id}/reset-password`, { method: 'POST', auth: true }),
+
+    // Contact messages: anyone may send; only administrators read them.
+    sendMessage: data => request('/api/messages', { method: 'POST', body: data }),
+    listMessages: () => request('/api/messages', { auth: true }),
+    markMessage: (id, isRead) =>
+      request(`/api/messages/${id}`, { method: 'PATCH', body: { is_read: isRead }, auth: true }),
+    deleteMessage: id => request(`/api/messages/${id}`, { method: 'DELETE', auth: true }),
 
     // Reviews (admin)
     listReviews: () => request('/api/reviews', { auth: true }),

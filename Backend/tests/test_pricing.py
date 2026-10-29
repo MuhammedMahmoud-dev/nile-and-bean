@@ -148,8 +148,8 @@ def test_a_multi_product_order_sums_every_line(db_session, customer, espresso, c
 
     assert len(order.items) == 2
     assert order.subtotal == Decimal("12.07")  # 5.49 + 6.58
-    assert order.tax == Decimal("0.97")
-    assert order.total == Decimal("13.04")
+    assert order.tax == money(Decimal("12.07") * TAX_RATE)
+    assert order.total == order.subtotal + order.tax
 
 
 def test_chosen_options_are_stored_on_the_line(db_session, customer, espresso):
@@ -186,7 +186,7 @@ def test_the_line_price_is_frozen_at_purchase_time(db_session, customer, espress
     db_session.refresh(order)
 
     assert order.items[0].unit_price == Decimal("2.99")
-    assert order.total == Decimal("3.23")
+    assert order.total == Decimal("2.99") + money(Decimal("2.99") * TAX_RATE)
 
 
 def test_an_unavailable_product_cannot_be_ordered(db_session, customer, espresso):

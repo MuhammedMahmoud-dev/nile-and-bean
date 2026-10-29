@@ -82,12 +82,15 @@ class Product(Base):
     # The stable public identifier the frontend uses in URLs (?id=espresso).
     slug: Mapped[str] = mapped_column(String(80), unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(120), index=True, nullable=False)
+    # Shown above the English name, the way a Cairo shop sign is lettered.
+    name_ar: Mapped[str | None] = mapped_column(String(120))
     image: Mapped[str | None] = mapped_column(String(500))
     price: Mapped[decimal.Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     category: Mapped[str] = mapped_column(String(40), index=True, nullable=False)
     short_description: Mapped[str] = mapped_column(String(300), default="")
     long_description: Mapped[str | None] = mapped_column(Text)
-    # {"sizes": [{"name", "price"}], "milk": [str], "extras": [{"name", "price"}]}
+    # {"sizes": [{"name", "price"}], "milk": [str], "sugar": [str],
+    #  "extras": [{"name", "price"}]}
     # Held as JSON rather than three more tables: the shape is read whole, never
     # queried into, and is authored per product.
     options: Mapped[dict | None] = mapped_column(JSON)
@@ -153,6 +156,8 @@ class OrderItem(Base):
 
     size: Mapped[str | None] = mapped_column(String(40))
     milk: Mapped[str | None] = mapped_column(String(40))
+    # Turkish coffee is ordered by sugar level: sada, 'al-reeha, mazboot, ziyada.
+    sugar: Mapped[str | None] = mapped_column(String(40))
     extras: Mapped[list | None] = mapped_column(JSON)
     special_instructions: Mapped[str | None] = mapped_column(String(500))
 
@@ -178,3 +183,23 @@ class Review(Base):
 
     user: Mapped["User"] = relationship(back_populates="reviews")
     product: Mapped["Product"] = relationship(back_populates="reviews")
+
+
+class Message(Base):
+    """A note sent through the contact form on the About page.
+
+    The form used to show a thank-you toast and discard what was typed. Messages
+    are now stored and listed for administrators. There is no email: a reply, if
+    any, happens outside the site.
+    """
+
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, index=True
+    )

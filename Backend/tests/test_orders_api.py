@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from decimal import Decimal
 
+from app.config import TAX_RATE
+from app.crud import money
+
 
 def test_placing_an_order_requires_signing_in(client, espresso, pickup_order_body):
     response = client.post(
@@ -26,7 +29,7 @@ def test_a_signed_in_customer_can_place_an_order(
     assert body["status"] == "pending"
     assert Decimal(body["items"][0]["unit_price"]) == Decimal("3.99")
     assert Decimal(body["subtotal"]) == Decimal("7.98")
-    assert Decimal(body["total"]) == Decimal("8.62")
+    assert Decimal(body["total"]) == Decimal("7.98") + money(Decimal("7.98") * TAX_RATE)
 
 
 def test_a_client_cannot_dictate_its_own_price(
@@ -54,7 +57,7 @@ def test_a_client_cannot_dictate_its_own_price(
 
     placed = response.json()
     assert Decimal(placed["items"][0]["unit_price"]) == Decimal("5.49")
-    assert Decimal(placed["total"]) == Decimal("5.93")
+    assert Decimal(placed["total"]) == Decimal("5.49") + money(Decimal("5.49") * TAX_RATE)
 
 
 def test_an_option_the_product_does_not_offer_is_rejected(

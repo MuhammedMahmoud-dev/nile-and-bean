@@ -1,9 +1,46 @@
 [
   {
+    "id": "turkish-coffee",
+    "name": "Turkish Coffee",
+    "nameAr": "قهوة تركي",
+    "image": "https://images.unsplash.com/photo-1757079649052-a24c6ab32c64",
+    "price": 45,
+    "category": "coffee",
+    "shortDescription": "Finely ground and brewed slowly in a copper kanaka until the foam rises",
+    "longDescription": "Ground to a powder and brewed slowly in a copper kanaka until the foam rises, then poured with the foam intact. Order it the way you take it: sada, 'al-reeha, mazboot or ziyada.",
+    "options": {
+      "sizes": [
+        {
+          "name": "Single",
+          "price": 0
+        },
+        {
+          "name": "Double",
+          "price": 20
+        }
+      ],
+      "sugar": [
+        "Sada · no sugar",
+        "'Al-reeha · a hint",
+        "Mazboot · medium",
+        "Ziyada · sweet"
+      ],
+      "extras": [
+        {
+          "name": "Cardamom",
+          "price": 5
+        }
+      ]
+    },
+    "featured": true,
+    "popular": true
+  },
+  {
     "id": "espresso",
     "name": "Espresso",
+    "nameAr": "إسبريسو",
     "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348",
-    "price": 2.99,
+    "price": 65,
     "category": "coffee",
     "shortDescription": "Our signature espresso is bold and full-bodied",
     "longDescription": "Our signature espresso is a careful blend of Arabica beans from Ethiopia and Colombia, resulting in a bold and full-bodied flavor profile with notes of dark chocolate and caramel.",
@@ -15,29 +52,29 @@
         },
         {
           "name": "Double",
-          "price": 1
+          "price": 20
         },
         {
           "name": "Triple",
-          "price": 2
+          "price": 40
         }
       ],
       "extras": [
         {
           "name": "Extra Shot",
-          "price": 0.99
+          "price": 25
         },
         {
           "name": "Vanilla Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Caramel Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Mocha Syrup",
-          "price": 0.5
+          "price": 15
         }
       ]
     },
@@ -47,8 +84,9 @@
   {
     "id": "latte",
     "name": "Latte",
-    "image": "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?q=80&w=2875&auto=format&fit=crop",
-    "price": 4.49,
+    "nameAr": "لاتيه",
+    "image": "https://images.unsplash.com/photo-1570968915860-54d5c301fa9f",
+    "price": 95,
     "category": "coffee",
     "shortDescription": "Smooth espresso with steamed milk and light foam",
     "longDescription": "Our latte combines our rich espresso with smooth steamed milk and a light layer of foam, creating a perfectly balanced coffee experience that's both comforting and sophisticated.",
@@ -60,11 +98,11 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "milk": [
@@ -77,19 +115,19 @@
       "extras": [
         {
           "name": "Extra Shot",
-          "price": 0.99
+          "price": 25
         },
         {
           "name": "Vanilla Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Caramel Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Mocha Syrup",
-          "price": 0.5
+          "price": 15
         }
       ]
     },
@@ -99,8 +137,9 @@
   {
     "id": "cappuccino",
     "name": "Cappuccino",
-    "image": "https://images.unsplash.com/photo-1534617580475-4439e80c4324?q=80&w=2787&auto=format&fit=crop",
-    "price": 4.29,
+    "nameAr": "كابتشينو",
+    "image": "https://images.unsplash.com/photo-1503481766315-7a586b20f66d",
+    "price": 90,
     "category": "coffee",
     "shortDescription": "Equal parts espresso, steamed milk, and foam",
     "longDescription": "Our cappuccino follows the traditional Italian recipe with equal parts espresso, steamed milk, and milk foam. The result is a perfect balance of rich flavors and creamy textures.",
@@ -112,11 +151,11 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "milk": [
@@ -129,19 +168,19 @@
       "extras": [
         {
           "name": "Extra Shot",
-          "price": 0.99
+          "price": 25
         },
         {
           "name": "Vanilla Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Caramel Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Mocha Syrup",
-          "price": 0.5
+          "price": 15
         }
       ]
     },
@@ -151,8 +190,9 @@
   {
     "id": "americano",
     "name": "Americano",
-    "image": "https://images.unsplash.com/photo-1580661962569-fa5a658896d2?q=80&w=3000&auto=format&fit=crop",
-    "price": 3.29,
+    "nameAr": "أمريكانو",
+    "image": "https://images.unsplash.com/photo-1789109392242-a4b1814718c0",
+    "price": 75,
     "category": "coffee",
     "shortDescription": "Espresso diluted with hot water",
     "longDescription": "Our Americano starts with our signature espresso and is diluted with hot water to create a coffee that's similar in strength to drip coffee but with the unique flavor profile of espresso.",
@@ -164,17 +204,17 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "extras": [
         {
           "name": "Extra Shot",
-          "price": 0.99
+          "price": 25
         }
       ]
     },
@@ -182,10 +222,37 @@
     "popular": false
   },
   {
+    "id": "mint-tea",
+    "name": "Mint Tea",
+    "nameAr": "شاي بالنعناع",
+    "image": "https://images.unsplash.com/photo-1567708415681-d1d249e182eb",
+    "price": 40,
+    "category": "tea",
+    "shortDescription": "Strong black tea poured over a glass full of fresh mint",
+    "longDescription": "The tea poured in every Egyptian home: strong black tea over a generous handful of fresh mint leaves, served in a glass.",
+    "options": {
+      "sugar": [
+        "Sada · no sugar",
+        "'Al-reeha · a hint",
+        "Mazboot · medium",
+        "Ziyada · sweet"
+      ],
+      "extras": [
+        {
+          "name": "Extra Mint",
+          "price": 5
+        }
+      ]
+    },
+    "featured": true,
+    "popular": true
+  },
+  {
     "id": "green-tea",
     "name": "Green Tea",
-    "image": "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?q=80&w=2940&auto=format&fit=crop",
-    "price": 3.49,
+    "nameAr": "شاي أخضر",
+    "image": "https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9",
+    "price": 55,
     "category": "tea",
     "shortDescription": "Delicate tea with earthy, grassy notes",
     "longDescription": "Our premium green tea is sourced from the mountains of Japan. It has a delicate flavor with subtle earthy and grassy notes, providing a refreshing experience with every sip.",
@@ -197,32 +264,33 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "extras": [
         {
           "name": "Honey",
-          "price": 0.3
+          "price": 10
         },
         {
           "name": "Lemon",
-          "price": 0.3
+          "price": 10
         }
       ]
     },
-    "featured": true,
+    "featured": false,
     "popular": false
   },
   {
     "id": "chai-latte",
     "name": "Chai Latte",
-    "image": "https://images.unsplash.com/photo-1577805947697-89e18249d767?q=80&w=2893&auto=format&fit=crop",
-    "price": 4.79,
+    "nameAr": "تشاي لاتيه",
+    "image": "https://images.unsplash.com/photo-1746281673841-31a64ca33ef1",
+    "price": 100,
     "category": "tea",
     "shortDescription": "Spiced tea blend with steamed milk",
     "longDescription": "Our Chai Latte features a house-made blend of black tea and aromatic spices including cinnamon, cardamom, and cloves, combined with steamed milk for a comforting, spiced beverage.",
@@ -234,11 +302,11 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "milk": [
@@ -251,11 +319,11 @@
       "extras": [
         {
           "name": "Vanilla Syrup",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Extra Spice",
-          "price": 0.3
+          "price": 10
         }
       ]
     },
@@ -265,8 +333,9 @@
   {
     "id": "croissant",
     "name": "Butter Croissant",
-    "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?q=80&w=2726&auto=format&fit=crop",
-    "price": 3.29,
+    "nameAr": "كرواسون بالزبدة",
+    "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a",
+    "price": 70,
     "category": "pastry",
     "shortDescription": "Flaky, buttery pastry, freshly baked",
     "longDescription": "Our classic butter croissants are made from scratch daily. The dough is laminated with European butter, creating dozens of flaky layers and a rich, buttery flavor.",
@@ -276,8 +345,9 @@
   {
     "id": "chocolate-muffin",
     "name": "Double Chocolate Muffin",
-    "image": "https://images.unsplash.com/photo-1604882767135-80fdacf6e84c?q=80&w=2874&auto=format&fit=crop",
-    "price": 3.79,
+    "nameAr": "مافن الشوكولاتة",
+    "image": "https://images.unsplash.com/photo-1686221817801-27b85431430d",
+    "price": 80,
     "category": "pastry",
     "shortDescription": "Rich chocolate muffin with chocolate chips",
     "longDescription": "Our double chocolate muffins are made with Dutch-processed cocoa powder and filled with rich chocolate chips, creating a decadent treat that's perfect for chocolate lovers.",
@@ -285,12 +355,37 @@
     "popular": false
   },
   {
+    "id": "sahlab",
+    "name": "Sahlab",
+    "nameAr": "سحلب",
+    "image": "https://images.unsplash.com/photo-1609486806052-87879928b82a",
+    "price": 85,
+    "category": "seasonal",
+    "shortDescription": "Warm, thick milk topped with coconut, nuts and cinnamon",
+    "longDescription": "The winter cup: milk thickened and lightly sweetened, topped with shredded coconut, chopped nuts, raisins and a dusting of cinnamon.",
+    "options": {
+      "extras": [
+        {
+          "name": "Extra Nuts",
+          "price": 15
+        },
+        {
+          "name": "Extra Coconut",
+          "price": 10
+        }
+      ]
+    },
+    "featured": true,
+    "popular": true
+  },
+  {
     "id": "pumpkin-spice",
     "name": "Pumpkin Spice Latte",
-    "image": "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=2940&auto=format&fit=crop",
-    "price": 5.49,
+    "nameAr": "لاتيه القرع بالتوابل",
+    "image": "https://images.unsplash.com/photo-1505801045160-cf907cca55ad",
+    "price": 120,
     "category": "seasonal",
-    "shortDescription": "Our famous seasonal fall favorite",
+    "shortDescription": "Espresso with pumpkin, warm spices and steamed milk",
     "longDescription": "Our Pumpkin Spice Latte combines our signature espresso with real pumpkin, warm spices like cinnamon and nutmeg, and steamed milk, topped with whipped cream and pumpkin pie spice.",
     "options": {
       "sizes": [
@@ -300,11 +395,11 @@
         },
         {
           "name": "Medium",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Large",
-          "price": 1
+          "price": 30
         }
       ],
       "milk": [
@@ -317,19 +412,19 @@
       "extras": [
         {
           "name": "Extra Shot",
-          "price": 0.99
+          "price": 25
         },
         {
           "name": "Whipped Cream",
-          "price": 0.5
+          "price": 15
         },
         {
           "name": "Extra Spice",
-          "price": 0.3
+          "price": 10
         }
       ]
     },
-    "featured": true,
+    "featured": false,
     "popular": true
   }
 ]

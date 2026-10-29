@@ -23,6 +23,10 @@ ADMIN_ROUTES = [
     ("post", "/api/products"),
     ("patch", "/api/products/1"),
     ("delete", "/api/products/1"),
+    ("post", "/api/users/1/reset-password"),
+    ("get", "/api/messages"),
+    ("patch", "/api/messages/1"),
+    ("delete", "/api/messages/1"),
 ]
 
 

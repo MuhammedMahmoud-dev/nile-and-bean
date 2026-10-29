@@ -1,275 +1,266 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cart - Nile & Bean</title>
-    <meta name="description" content="Review your order and checkout at Nile & Bean." />
-    <meta name="author" content="Muhammed Mahmoud Ahmed" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your cart, Nile &amp; Bean</title>
+    <meta name="description" content="Review your order and check out." />
+    <meta name="theme-color" content="#1c3f94" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/aref-ruqaa-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/readex-pro-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Motion is opt-in: without JS every element renders in its final state. -->
+    <script>document.documentElement.classList.add('js');</script>
   </head>
-
   <body>
-    <div id="root">
-      <header class="navbar">
-        <div class="navbar-container">
-          <div class="navbar-logo">
-            <a href="index.html">Nile & Bean</a>
-          </div>
-          <nav class="navbar-nav">
-            <ul>
-              <li><a href="index.html">Home</a></li>
-              <li><a href="menu.html">Menu</a></li>
-              <li><a href="about.html">About Us</a></li>
-              <li id="accountNav"></li>
-            </ul>
-          </nav>
-          <div class="navbar-cart">
-            <a href="cart.html" class="cart-button active" aria-label="View cart">
-              <span class="cart-icon" aria-hidden="true">🛒</span>
-              <span class="cart-count" id="cartCount" aria-label="items in cart">0</span>
-            </a>
-          </div>
-          <button class="mobile-menu-button" id="mobileMenuButton"
-                  aria-expanded="false" aria-controls="mobileMenu"
-                  aria-label="Toggle navigation">☰</button>
-        </div>
-        <div class="mobile-menu" id="mobileMenu">
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Menu</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="cart.html">Cart</a></li>
-          </ul>
-        </div>
-      </header>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-      <main>
-        <section class="coffee-section">
-          <div class="coffee-container">
-            <h1 class="page-title" id="pageTitle">Your Cart</h1>
-            
-            <!-- Empty Cart Message -->
-            <div id="emptyCart" class="empty-cart hidden">
-              <h2>Your Cart is Empty</h2>
-              <p>Looks like you haven't added any items to your cart yet.</p>
-              <a href="menu.html" class="button">Browse Menu</a>
-            </div>
-            
-            <!-- Cart Content -->
-            <div id="cartContent" class="cart-content">
-              <div class="cart-grid">
-                <!-- Cart Items Column -->
-                <div class="cart-items">
-                  <div id="cartItemsList">
-                    <!-- Cart items will be loaded with JavaScript -->
-                  </div>
-                  
-                  <div class="cart-actions">
-                    <button id="clearCartButton" class="button outline-button">Clear Cart</button>
-                    <a href="menu.html" class="button outline-button">Continue Shopping</a>
-                  </div>
-                </div>
-                
-                <!-- Order Summary Column -->
-                <div class="cart-summary">
-                  <div class="summary-card">
-                    <h2>Order Summary</h2>
-                    <div class="summary-details">
-                      <div class="summary-line">
-                        <span>Subtotal</span>
-                        <span id="subtotal">$0.00</span>
-                      </div>
-                      <div class="summary-line">
-                        <span>Tax</span>
-                        <span id="tax">$0.00</span>
-                      </div>
-                      <div class="summary-line total-line">
-                        <span>Total</span>
-                        <span id="total">$0.00</span>
-                      </div>
-                    </div>
-                    <button id="checkoutButton" class="button full-width">Proceed to Checkout</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Checkout Form -->
-            <div id="checkoutForm" class="checkout-form hidden">
-              <div class="checkout-grid">
-                <div class="checkout-details">
-                  <!-- Order Type Section -->
-                  <div class="checkout-section">
-                    <h2>Pickup or Delivery</h2>
-                    <div class="radio-group">
-                      <div class="radio-option">
-                        <input type="radio" id="pickup" name="orderType" value="pickup" checked>
-                        <label for="pickup">Pickup in Store</label>
-                      </div>
-                      <div class="radio-option">
-                        <input type="radio" id="delivery" name="orderType" value="delivery">
-                        <label for="delivery">Delivery</label>
-                      </div>
-                    </div>
-                    
-                    <div id="deliveryAddress" class="delivery-address hidden">
-                      <h3>Delivery Address</h3>
-                      <div class="form-group">
-                        <label for="street">Street address</label>
-                        <input type="text" id="street" class="text-input" autocomplete="address-line1">
-                        <span class="field-error" id="streetError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" id="city" class="text-input" autocomplete="address-level2">
-                        <span class="field-error" id="cityError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="zipCode">Zip code</label>
-                        <input type="text" id="zipCode" class="text-input" autocomplete="postal-code">
-                        <span class="field-error" id="zipCodeError"></span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- Contact Information Section -->
-                  <div class="checkout-section">
-                    <h2>Contact Information</h2>
-                      <div class="form-group">
-                        <label for="fullName">Full name</label>
-                        <input type="text" id="fullName" class="text-input" autocomplete="name" required>
-                        <span class="field-error" id="fullNameError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="phone">Phone number</label>
-                        <input type="tel" id="phone" class="text-input" autocomplete="tel" required>
-                        <span class="field-error" id="phoneError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" id="email" class="text-input" autocomplete="email" required>
-                        <span class="field-error" id="emailError"></span>
-                      </div>
-                  </div>
-                  
-                  <!-- Payment Method Section -->
-                  <div class="checkout-section">
-                    <h2>Payment Method</h2>
-                    <div class="radio-group">
-                      <div class="radio-option">
-                        <input type="radio" id="card" name="paymentMethod" value="card" checked>
-                        <label for="card">Credit / Debit Card</label>
-                      </div>
-                      <div class="radio-option">
-                        <input type="radio" id="applepay" name="paymentMethod" value="applepay">
-                        <label for="applepay">Apple Pay</label>
-                      </div>
-                      <div class="radio-option">
-                        <input type="radio" id="googlepay" name="paymentMethod" value="googlepay">
-                        <label for="googlepay">Google Pay</label>
-                      </div>
-                    </div>
-                    
-                    <div id="cardDetails" class="card-details">
-                      <p class="field-hint">Demonstration only - no card is charged and no card details are transmitted or stored.</p>
-                      <div class="form-group">
-                        <label for="cardNumber">Card number</label>
-                        <input type="text" id="cardNumber" class="text-input" inputmode="numeric" autocomplete="cc-number">
-                        <span class="field-error" id="cardNumberError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="cardExpiry">Expiry (MM/YY)</label>
-                        <input type="text" id="cardExpiry" class="text-input" inputmode="numeric" autocomplete="cc-exp">
-                        <span class="field-error" id="cardExpiryError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="cardCvc">CVC</label>
-                        <input type="text" id="cardCvc" class="text-input" inputmode="numeric" autocomplete="cc-csc">
-                        <span class="field-error" id="cardCvcError"></span>
-                      </div>
-                      <div class="form-group">
-                        <label for="cardName">Name on card</label>
-                        <input type="text" id="cardName" class="text-input" autocomplete="cc-name">
-                        <span class="field-error" id="cardNameError"></span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Checkout Summary -->
-                <div class="checkout-summary">
-                  <div class="summary-card">
-                    <h2>Order Summary</h2>
-                    <div id="checkoutItems" class="checkout-items">
-                      <!-- Checkout items will be loaded with JavaScript -->
-                    </div>
-                    <div class="summary-details">
-                      <div class="summary-line">
-                        <span>Subtotal</span>
-                        <span id="checkoutSubtotal">$0.00</span>
-                      </div>
-                      <div class="summary-line">
-                        <span>Tax</span>
-                        <span id="checkoutTax">$0.00</span>
-                      </div>
-                      <div class="summary-line total-line">
-                        <span>Total</span>
-                        <span id="checkoutTotal">$0.00</span>
-                      </div>
-                    </div>
-                    <p class="form-error hidden" id="checkoutError" role="alert"></p>
-                    <p class="field-hint" id="checkoutNotice"></p>
-                    <div class="checkout-buttons">
-                      <button id="placeOrderButton" class="button full-width">Place Order</button>
-                      <button id="backToCartButton" class="button outline-button full-width">Back to Cart</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <div class="coffee-container">
-          <div class="footer-grid">
-            <div class="footer-column">
-              <h3>Nile & Bean</h3>
-              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
-              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
-            </div>
-            
-            <div class="footer-column">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="menu.html">Menu</a></li>
-                <li><a href="about.html">About Us</a></li>
-              </ul>
-            </div>
-            
-            <div class="footer-column">
-              <h3>Team</h3>
-              <ul>
-                <li>Muhammed Mahmoud Ahmed</li>
-                <li>Mohammed Mahmood Hamed</li>
-                <li>Mostafa Moahmed</li>
-                <li>Aliaa Nagdy</li>
-                <li>Menna Ahmed Reda</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+    <div class="demo-strip">
+      <strong>Portfolio demo.</strong> Orders and payments are simulated: nothing is charged, made or delivered.
     </div>
-    
+
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="brand plate" href="index.html" aria-label="Nile and Bean, home">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a class="nav-plate account-plate" id="accountNav" href="login.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span>
+          </a>
+          <a class="cart-plate" href="cart.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg><span class="cart-label">Cart</span>
+            <span class="cart-count" id="cartCount">0</span><span class="visually-hidden"> items</span>
+          </a>
+          <button class="menu-toggle" id="mobileMenuButton" type="button"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu wrap" id="mobileMenu" aria-label="Main, mobile">
+        <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          <li><a class="nav-plate" id="accountNavMobile" href="login.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <div class="wrap page-head">
+        <div class="sign-heading">
+          <span class="ar" id="pageTitleAr" lang="ar" dir="rtl">السلة</span>
+          <h1 id="pageTitle">Your cart</h1>
+        </div>
+      </div>
+
+      <div class="wrap" style="padding-bottom: 5rem">
+        <div id="emptyCart" class="state-message hidden">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg>
+          <h2>Your cart is empty</h2>
+          <p>Pick something from the board to get started.</p>
+          <a class="btn btn--red" href="menu.html">Browse the menu <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg></a>
+        </div>
+
+        <div id="cartContent" class="cart-layout hidden">
+          <section class="panel" aria-label="Items in your cart">
+            <div id="cartItemsList"></div>
+          </section>
+
+          <aside class="summary plate on-dark" aria-labelledby="summaryTitle">
+            <h2 id="summaryTitle">Order summary <span class="ar" lang="ar" dir="rtl">الحساب</span></h2>
+            <div class="summary__lines">
+              <div class="summary__line"><span>Subtotal</span><span id="subtotal"></span></div>
+              <div class="summary__line"><span>VAT (14%)</span><span id="tax"></span></div>
+            </div>
+            <div class="summary__total"><span>Total</span><span id="total"></span></div>
+            <button type="button" class="btn btn--saffron btn--block" id="checkoutButton">
+              Checkout <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg>
+            </button>
+            <button type="button" class="btn btn--white btn--block" id="clearCartButton">
+              <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#trash"></use></svg> Clear cart
+            </button>
+            <p class="fine">Prices in Egyptian pounds, VAT included in the total.</p>
+          </aside>
+        </div>
+
+        <form id="checkoutForm" class="cart-layout hidden" novalidate>
+          <div>
+            <section class="panel" aria-labelledby="fulfilTitle">
+              <h2 id="fulfilTitle">Pickup or delivery <span class="ar" lang="ar" dir="rtl">استلام ولا توصيل</span></h2>
+              <div class="choice-plates">
+                <label class="choice-plate"><input type="radio" name="orderType" value="pickup" checked /><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#store"></use></svg><span>Pickup <span class="ar" lang="ar" dir="rtl">استلام</span></span></label>
+                <label class="choice-plate"><input type="radio" name="orderType" value="delivery" /><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#truck"></use></svg><span>Delivery <span class="ar" lang="ar" dir="rtl">توصيل</span></span></label>
+              </div>
+              <div id="deliveryAddress" class="hidden" style="margin-top: 1.25rem">
+                
+                <div class="form-group">
+                  <label for="street">Street address</label>
+                  <input type="text" id="street" class="field" autocomplete="address-line1" />
+                  <span class="field-error" id="streetError"></span>
+                </div>
+                <div class="field-row">
+                  
+                <div class="form-group">
+                  <label for="city">City</label>
+                  <input type="text" id="city" class="field" autocomplete="address-level2" />
+                  <span class="field-error" id="cityError"></span>
+                </div>
+                  
+                <div class="form-group">
+                  <label for="zipCode">Postal code</label>
+                  <input type="text" id="zipCode" class="field" autocomplete="postal-code" inputmode="numeric" />
+                  <span class="field-error" id="zipCodeError"></span>
+                </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="contactTitle">
+              <h2 id="contactTitle">Your details <span class="ar" lang="ar" dir="rtl">بياناتك</span></h2>
+              
+                <div class="form-group">
+                  <label for="fullName">Full name</label>
+                  <input type="text" id="fullName" class="field" autocomplete="name" required />
+                  <span class="field-error" id="fullNameError"></span>
+                </div>
+              <div class="field-row">
+                
+                <div class="form-group">
+                  <label for="phone">Phone</label>
+                  <input type="tel" id="phone" class="field" autocomplete="tel" required placeholder="+20 1xx xxx xxxx" />
+                  <span class="field-error" id="phoneError"></span>
+                </div>
+                
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" class="field" autocomplete="email" required />
+                  <span class="field-error" id="emailError"></span>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="payTitle">
+              <h2 id="payTitle">Payment <span class="ar" lang="ar" dir="rtl">الدفع</span></h2>
+              <p class="notice" style="margin-bottom: 1rem">
+                <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#alert"></use></svg>
+                <span>Demonstration only. No card is charged, and card details are never sent to the server or stored.</span>
+              </p>
+              <div class="choice-plates">
+                <label class="choice-plate"><input type="radio" name="paymentMethod" value="card" checked /><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#card"></use></svg><span>Card <span class="ar" lang="ar" dir="rtl">كارت</span></span></label>
+                <label class="choice-plate"><input type="radio" name="paymentMethod" value="applepay" /><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#phone"></use></svg><span>Apple Pay</span></label>
+                <label class="choice-plate"><input type="radio" name="paymentMethod" value="googlepay" /><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#phone"></use></svg><span>Google Pay</span></label>
+              </div>
+              <div id="cardDetails" style="margin-top: 1.25rem">
+                
+                <div class="form-group">
+                  <label for="cardNumber">Card number</label>
+                  <input type="text" id="cardNumber" class="field" inputmode="numeric" autocomplete="cc-number" placeholder="4242 4242 4242 4242" />
+                  <span class="field-error" id="cardNumberError"></span>
+                </div>
+                <div class="field-row">
+                  
+                <div class="form-group">
+                  <label for="cardExpiry">Expiry (MM/YY)</label>
+                  <input type="text" id="cardExpiry" class="field" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" />
+                  <span class="field-error" id="cardExpiryError"></span>
+                </div>
+                  
+                <div class="form-group">
+                  <label for="cardCvc">CVC</label>
+                  <input type="text" id="cardCvc" class="field" inputmode="numeric" autocomplete="cc-csc" />
+                  <span class="field-error" id="cardCvcError"></span>
+                </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="cardName">Name on card</label>
+                  <input type="text" id="cardName" class="field" autocomplete="cc-name" />
+                  <span class="field-error" id="cardNameError"></span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="summary plate on-dark" aria-labelledby="checkoutSummaryTitle">
+            <h2 id="checkoutSummaryTitle">Your order <span class="ar" lang="ar" dir="rtl">طلبك</span></h2>
+            <div id="checkoutItems" class="summary__lines"></div>
+            <div class="summary__lines">
+              <div class="summary__line"><span>Subtotal</span><span id="checkoutSubtotal"></span></div>
+              <div class="summary__line"><span>VAT (14%)</span><span id="checkoutTax"></span></div>
+            </div>
+            <div class="summary__total"><span>Total</span><span id="checkoutTotal"></span></div>
+            <p class="form-error hidden" id="checkoutError" role="alert" style="margin-top: 1rem"></p>
+            <p class="fine" id="checkoutNotice"></p>
+            <button type="submit" class="btn btn--saffron btn--block" id="placeOrderButton">
+              Place order <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg>
+            </button>
+            <button type="button" class="btn btn--white btn--block" id="backToCartButton">
+              <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#arrow-left"></use></svg> Back to cart
+            </button>
+          </aside>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer on-dark">
+      <div class="wrap">
+        <div class="site-footer__grid">
+          <div>
+            <span class="site-footer__name">
+              <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+              <span class="brand__en">NILE &amp; BEAN</span>
+            </span>
+            <p style="margin-top: 1rem; max-width: 42ch">
+              An Egyptian café's ordering site, built as a portfolio project. Orders and payments are simulated.
+            </p>
+          </div>
+          <div>
+            <h2>Visit</h2>
+            <ul>
+              <li><a href="menu.html">The menu</a></li>
+              <li><a href="orders.html">My orders</a></li>
+              <li><a href="about.html">About &amp; contact</a></li>
+              <li><a href="login.html">Sign in</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Team</h2>
+            <ul>
+              <li>Muhammed Mahmoud Ahmed</li>
+              <li>Ziad Mohamed</li>
+              <li>Mohammed Mahmood Hamed</li>
+              <li>Aliaa Nagdy</li>
+              <li>Menna Ahmed Reda</li>
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__base">
+          <span>&copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.</span>
+          <span>Photography from Unsplash.</span>
+        </div>
+      </div>
+    </footer>
+
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
     <script src="js/cart.js"></script>

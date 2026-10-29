@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from .. import crud, models, schemas
 from ..database import get_db
-from ..security import get_current_admin
+from ..security import get_current_admin, hash_password
 
 router = APIRouter(prefix="/api/users", tags=["users"])
 
@@ -64,3 +66,32 @@ def delete_user(
 
     db.delete(user)
     db.commit()
+
+
+@router.post("/{user_id}/reset-password", response_model=schemas.PasswordResetOut)
+def reset_password(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_admin: models.User = Depends(get_current_admin),
+) -> schemas.PasswordResetOut:
+    """Issue a temporary password, returned once to the administrator.
+
+    There is no email infrastructure, so a forgotten password is recovered by
+    asking the cafe staff. The admin passes the temporary password on; only its
+    hash is stored, so it can never be read back.
+    """
+    user = db.get(models.User, user_id)
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    if user.id == current_admin.id:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Reset your own password by signing in, not from here",
+        )
+
+    temporary = secrets.token_urlsafe(9)  # 12 characters, ~72 bits
+    user.hashed_password = hash_password(temporary)
+    db.commit()
+    return schemas.PasswordResetOut(
+        user_id=user.id, username=user.username, temporary_password=temporary
+    )

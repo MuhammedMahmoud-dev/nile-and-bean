@@ -59,3 +59,20 @@ def update_order_status(
     db.commit()
     db.refresh(order)
     return order
+
+
+@router.get("/{order_id}", response_model=schemas.OrderOut)
+def get_order(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+) -> models.Order:
+    """One order, for its owner or an administrator. Backs the confirmation page.
+
+    Someone else's order answers 404, not 403, so order ids cannot be probed to
+    learn which ones exist.
+    """
+    order = crud.get_order(db, order_id)
+    if order is None or (order.user_id != current_user.id and not current_user.is_admin):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Order not found")
+    return order

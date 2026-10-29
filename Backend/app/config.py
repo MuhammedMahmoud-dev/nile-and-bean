@@ -33,9 +33,13 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 # --- Business rules ---------------------------------------------------------
-# The single definition of the tax rate. The frontend previously carried its own
-# copy of 0.08 and computed the total the server never saw.
-TAX_RATE = Decimal(os.environ.get("TAX_RATE", "0.08"))
+# The single definition of the tax rate. Nile & Bean is an Egyptian café, so this
+# is Egyptian VAT at 14%. The original 8% matched no real jurisdiction, and the
+# frontend used to carry its own copy and compute a total the server never saw.
+TAX_RATE = Decimal(os.environ.get("TAX_RATE", "0.14"))
+
+# Prices are Egyptian pounds throughout. Recorded here so the API can say so.
+CURRENCY = "EGP"
 
 # --- CORS -------------------------------------------------------------------
 # The frontend is served by this application from the same origin, so CORS is

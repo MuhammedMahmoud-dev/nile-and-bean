@@ -1,62 +1,71 @@
 <!DOCTYPE html>
 <!--
-  Source for assets/og-image.png (1200x630).
-  Uses the same design tokens and typefaces as css/styles.css.
-  Regenerate with:
-    playwright screenshot --viewport-size=1200,630 assets/og-image.source.html assets/og-image.png
+  Source for assets/og-image.png (1200x630): the shop board from the home page,
+  drawn with the site's own tokens and self-hosted fonts. Regenerate with:
+    playwright screenshot --viewport-size=1200,630 --wait-for-timeout=1500 assets/og-image.source.html assets/og-image.png
 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/fonts.css" />
 <style>
   :root {
-    --coffee-dark: #403020;
-    --coffee-medium: #6b4f35;
-    --caramel: #c87f0a;
-    --cream: #f5f5dc;
+    --plaster: #dcebe5; --plaster-deep: #c9ded5; --enamel: #1c3f94; --white: #fbfbf8;
+    --red: #c8281e; --red-deep: #9e1d15; --saffron: #f2b518; --saffron-deep: #c98f00; --ink-soft: #3b4a63;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    width: 1200px; height: 630px;
-    background: linear-gradient(135deg, var(--coffee-dark) 0%, var(--coffee-medium) 100%);
-    color: var(--cream);
-    font-family: 'Inter', -apple-system, Segoe UI, sans-serif;
-    display: flex; flex-direction: column;
-    justify-content: center;
-    padding: 0 96px;
-    position: relative; overflow: hidden;
+    width: 1200px; height: 630px; overflow: hidden;
+    background: linear-gradient(var(--plaster) 70%, var(--plaster-deep) 70%);
+    font-family: 'Readex Pro', sans-serif;
+    display: grid; place-items: center;
   }
-  /* faint steam arcs, echoing the cup motif */
-  .mark {
-    position: absolute; right: -60px; top: 50%; transform: translateY(-50%);
-    width: 520px; height: 520px; opacity: 0.09;
+  .hang { position: relative; padding-top: 70px; }
+  .chain { position: absolute; top: 0; width: 18px; height: 74px; color: var(--ink-soft); }
+  .chain--l { left: 18%; } .chain--r { right: 18%; }
+  .hook { position: absolute; top: -4px; width: 28px; height: 12px; border-radius: 3px; background: var(--ink-soft); }
+  .hook--l { left: calc(18% - 5px); } .hook--r { right: calc(18% - 5px); }
+  .board {
+    position: relative; width: 960px; text-align: center; overflow: hidden;
+    padding: 46px 60px 0; border-radius: 16px; background: var(--enamel);
+    background-image: linear-gradient(170deg, rgba(255,255,255,.16), rgba(255,255,255,0) 38%);
+    box-shadow: inset 0 0 0 12px var(--enamel), inset 0 0 0 17px var(--white),
+                0 30px 50px -20px rgba(11,26,61,.55);
   }
-  .rule { width: 88px; height: 6px; background: var(--caramel); border-radius: 3px; margin-bottom: 34px; }
-  h1 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-weight: 700; font-size: 92px; line-height: 1.05;
-    letter-spacing: -0.015em; margin-bottom: 22px;
+  .ar {
+    display: block; font-family: 'Aref Ruqaa', serif; font-weight: 700;
+    font-size: 150px; line-height: 1.12; color: var(--white);
+    text-shadow: 5px 7px 0 var(--saffron-deep);
   }
-  p { font-size: 30px; line-height: 1.45; max-width: 660px; color: rgba(245,245,220,0.86); }
-  .foot {
-    position: absolute; left: 96px; bottom: 56px;
-    font-size: 21px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--caramel); font-weight: 500;
+  .en {
+    display: block; margin-top: 4px; font-family: 'Bungee', sans-serif; font-size: 70px;
+    letter-spacing: .04em; color: var(--saffron); text-shadow: 4px 4px 0 var(--red-deep);
   }
+  .strip {
+    margin: 34px -60px 0; padding: 16px 30px 20px; background: var(--red);
+    border-top: 5px solid var(--white); color: var(--white);
+    font-weight: 600; font-size: 24px; letter-spacing: .08em; text-transform: uppercase;
+    display: flex; justify-content: center; gap: 30px; align-items: baseline;
+  }
+  .strip span[lang] { font-family: 'Aref Ruqaa', serif; font-weight: 700; font-size: 30px; letter-spacing: 0; text-transform: none; }
 </style>
 </head>
 <body>
-  <svg class="mark" viewBox="0 0 200 200" fill="none" stroke="#f5f5dc" stroke-width="5" stroke-linecap="round">
-    <path d="M40 78h96v46a34 34 0 0 1-34 34H74a34 34 0 0 1-34-34z"/>
-    <path d="M136 92h16a20 20 0 0 1 0 40h-16"/>
-    <path d="M70 52c0-10 8-12 8-22M100 52c0-10 8-12 8-22M130 52c0-10 8-12 8-22"/>
-  </svg>
-  <div class="rule"></div>
-  <h1>Nile &amp; Bean</h1>
-  <p>Order coffee, tea and pastries online for pickup or delivery.</p>
-  <div class="foot">Fresh brews, friendly vibes</div>
+  <div class="hang">
+    <span class="hook hook--l"></span><span class="hook hook--r"></span>
+    <svg class="chain chain--l" viewBox="0 0 14 58"><g fill="none" stroke="currentColor" stroke-width="1.8">
+      <ellipse cx="7" cy="4" rx="3.4" ry="4.6"/><ellipse cx="7" cy="11.6" rx="3.4" ry="4.6"/><ellipse cx="7" cy="19.2" rx="3.4" ry="4.6"/><ellipse cx="7" cy="26.8" rx="3.4" ry="4.6"/><ellipse cx="7" cy="34.4" rx="3.4" ry="4.6"/><ellipse cx="7" cy="42" rx="3.4" ry="4.6"/><ellipse cx="7" cy="49.6" rx="3.4" ry="4.6"/></g></svg>
+    <svg class="chain chain--r" viewBox="0 0 14 58"><g fill="none" stroke="currentColor" stroke-width="1.8">
+      <ellipse cx="7" cy="4" rx="3.4" ry="4.6"/><ellipse cx="7" cy="11.6" rx="3.4" ry="4.6"/><ellipse cx="7" cy="19.2" rx="3.4" ry="4.6"/><ellipse cx="7" cy="26.8" rx="3.4" ry="4.6"/><ellipse cx="7" cy="34.4" rx="3.4" ry="4.6"/><ellipse cx="7" cy="42" rx="3.4" ry="4.6"/><ellipse cx="7" cy="49.6" rx="3.4" ry="4.6"/></g></svg>
+    <div class="board">
+      <span class="ar" lang="ar" dir="rtl">النيل والبُن</span>
+      <span class="en">NILE &amp; BEAN</span>
+      <div class="strip">
+        <span>Coffee</span><span lang="ar" dir="rtl">قهوة</span>
+        <span>Tea</span><span lang="ar" dir="rtl">شاي</span>
+        <span>Sahlab</span><span lang="ar" dir="rtl">سحلب</span>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -2,13 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Update Products - Nile &amp; Bean Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Products, Nile &amp; Bean admin</title>
     <meta name="robots" content="noindex" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0b1a3d" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/fonts.css" />
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="css/admin.css" />
 
@@ -19,92 +18,115 @@
   </head>
 
   <body class="admin-body" data-product-mode="update">
-    <nav class="admin-navbar">
-      <div class="logo">Nile &amp; Bean Admin</div>
-      <ul>
-        <li><a href="admin.html">Dashboard</a></li>
-        <li><a href="index.html">Shop</a></li>
-        <li><a href="logout.html">Sign out</a></li>
-      </ul>
-    </nav>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="demo-strip"><strong>Portfolio demo.</strong> Admin area of a simulated shop.</div>
 
-    <main class="admin-container">
-      <h1>Update Products</h1>
-      <p class="admin-intro">Edit a product in place, or withdraw it from sale without deleting its order history.</p>
+    <header class="admin-bar on-dark">
+      <div class="wrap admin-bar__inner">
+        <a class="brand plate" href="admin.html" aria-label="Nile and Bean admin, dashboard">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+        <span class="admin-bar__role">STAFF</span>
+        <nav class="admin-nav" aria-label="Admin">
+          <ul>
+            <li><a href="admin.html">Dashboard</a></li>
+            <li><a href="view-orders.html">Orders</a></li>
+            <li><a href="update-product.html" aria-current="page">Products</a></li>
+            <li><a href="manage-users.html">Users</a></li>
+            <li><a href="view-reviews.html">Reviews</a></li>
+            <li><a href="view-messages.html">Messages</a></li>
+            <li><a href="index.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#store"></use></svg> Shop</a></li>
+            <li><a href="logout.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#logout"></use></svg> Sign out</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
-      <p class="admin-status" id="productsStatus" hidden></p>
+    <main id="main" class="wrap admin-container">
+      <div class="sign-heading">
+        <span class="ar" lang="ar" dir="rtl">المنيو</span>
+        <h1>Products</h1>
+      </div>
+      <p class="admin-intro">Edit a product in place, or withdraw it from sale. Withdrawing keeps its order history; deleting does not.</p>
 
+      <p class="admin-status" id="productsStatus" role="status" hidden></p>
       <div class="table-scroll">
         <table class="admin-table" id="productTable">
+          <caption class="visually-hidden">All products</caption>
           <thead>
             <tr>
-            <th>Slug</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th>Actions</th>
+              <th scope="col">Slug</th>
+              <th scope="col">Name</th>
+              <th scope="col">Category</th>
+              <th scope="col">Price</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
       </div>
 
-      <form class="admin-form" id="productForm" novalidate>
-        <h2 id="productFormTitle">Add New Product</h2>
-        <input type="hidden" id="productDbId" value="">
-
+      <form class="admin-form panel" id="productForm" novalidate>
+        <h2 id="productFormTitle">Add a product</h2>
+        <input type="hidden" id="productDbId" value="" />
         <div class="form-row">
-          <div class="form-field">
-            <label for="productSlug">URL slug</label>
-            <input type="text" id="productSlug" name="slug" required
-                   placeholder="flat-white" pattern="[a-z0-9-]+">
-            <span class="field-error" id="productSlugError"></span>
-          </div>
-          <div class="form-field">
-            <label for="productName">Name</label>
-            <input type="text" id="productName" name="name" required maxlength="120"
-                   placeholder="Flat White">
-            <span class="field-error" id="productNameError"></span>
-          </div>
+          
+            <div class="form-field">
+              <label for="productSlug">URL slug</label>
+              <input type="text" id="productSlug" required placeholder="flat-white" pattern="[a-z0-9-]+" />
+              <span class="field-error" id="productSlugError"></span>
+            </div>
+          
+            <div class="form-field">
+              <label for="productCategory">Category</label>
+              <select id="productCategory" required>
+                <option value="">Choose a category</option>
+                <option value="coffee">Coffee</option>
+                <option value="tea">Tea</option>
+                <option value="pastry">Pastry</option>
+                <option value="seasonal">Seasonal</option>
+              </select>
+              <span class="field-error" id="productCategoryError"></span>
+            </div>
         </div>
-
         <div class="form-row">
-          <div class="form-field">
-            <label for="productPrice">Price ($)</label>
-            <input type="number" id="productPrice" name="price" required
-                   min="0.01" step="0.01" placeholder="4.29">
-            <span class="field-error" id="productPriceError"></span>
-          </div>
-          <div class="form-field">
-            <label for="productCategory">Category</label>
-            <select id="productCategory" name="category" required>
-              <option value="">Select a category</option>
-              <option value="coffee">Coffee</option>
-              <option value="tea">Tea</option>
-              <option value="pastry">Pastry</option>
-              <option value="seasonal">Seasonal</option>
-            </select>
-            <span class="field-error" id="productCategoryError"></span>
-          </div>
+          
+            <div class="form-field">
+              <label for="productName">Name in English</label>
+              <input type="text" id="productName" required maxlength="120" placeholder="Flat White" />
+              <span class="field-error" id="productNameError"></span>
+            </div>
+          
+            <div class="form-field">
+              <label for="productNameAr">Name in Arabic <span class="optional">(optional)</span></label>
+              <input type="text" id="productNameAr" maxlength="120" lang="ar" dir="rtl" placeholder="فلات وايت" />
+              <span class="field-error" id="productNameArError"></span>
+            </div>
         </div>
-
-        <div class="form-field">
-          <label for="productDescription">Short description</label>
-          <input type="text" id="productDescription" name="short_description" maxlength="300"
-                 placeholder="Smooth espresso with velvety steamed milk">
-          <span class="field-error" id="productDescriptionError"></span>
+        <div class="form-row">
+          
+            <div class="form-field">
+              <label for="productPrice">Price (EGP)</label>
+              <input type="number" id="productPrice" required min="0.01" step="0.01" inputmode="decimal" placeholder="90" />
+              <span class="field-error" id="productPriceError"></span>
+            </div>
+          
+            <div class="form-field">
+              <label for="productImage">Image URL <span class="optional">(optional)</span></label>
+              <input type="url" id="productImage" maxlength="500" placeholder="https://images.unsplash.com/..." />
+              <span class="field-error" id="productImageError"></span>
+            </div>
         </div>
-
-        <div class="form-field">
-          <label for="productImage">Image URL <span class="optional">(optional)</span></label>
-          <input type="url" id="productImage" name="image" maxlength="500"
-                 placeholder="https://images.unsplash.com/...">
-          <span class="field-error" id="productImageError"></span>
-        </div>
-
+        
+            <div class="form-field">
+              <label for="productDescription">Short description</label>
+              <input type="text" id="productDescription" maxlength="300" placeholder="Velvety steamed milk over a double ristretto" />
+              <span class="field-error" id="productDescriptionError"></span>
+            </div>
         <div class="actions">
-          <button type="submit" id="productSubmit">Add Product</button>
+          <button type="submit" id="productSubmit">Add product</button>
           <button type="button" id="productCancel" hidden>Cancel</button>
         </div>
       </form>
@@ -112,7 +134,7 @@
     </main>
 
     <footer class="admin-footer">
-      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+      &copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.
     </footer>
 
     <script src="js/admin.js"></script>

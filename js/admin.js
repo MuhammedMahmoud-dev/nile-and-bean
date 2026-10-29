@@ -15,11 +15,17 @@ document.addEventListener('DOMContentLoaded', function () {
   // Shared helpers
   // -------------------------------------------------------------------------
 
-  const money = value => `$${Number(value).toFixed(2)}`;
+  // Egyptian pounds; piastres only when there are some.
+  const money = value => {
+    const n = Number(value) || 0;
+    return Math.abs(n - Math.round(n)) < 0.005 ? `EGP ${Math.round(n)}` : `EGP ${n.toFixed(2)}`;
+  };
 
   const escapeHtml = value =>
     String(value ?? '').replace(/[&<>"']/g, c =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const title = s => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 
   const formatDate = iso => {
     const d = new Date(iso);
@@ -78,13 +84,13 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>#${order.id}</td>
             <td>${escapeHtml(order.contact_name)}<br><small>${escapeHtml(order.contact_email)}</small></td>
             <td>${items}</td>
-            <td>${escapeHtml(order.order_type)}</td>
+            <td>${escapeHtml(title(order.order_type))}</td>
             <td>${money(order.total)}</td>
             <td>
               <label class="visually-hidden" for="status-${order.id}">Status for order ${order.id}</label>
               <select class="status-select" id="status-${order.id}" data-order="${order.id}">
                 ${STATUSES.map(s =>
-                  `<option value="${s}"${s === order.status ? ' selected' : ''}>${s}</option>`).join('')}
+                  `<option value="${s}"${s === order.status ? ' selected' : ''}>${title(s)}</option>`).join('')}
               </select>
             </td>
             <td>${formatDate(order.created_at)}</td>
@@ -99,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
             this.disabled = true;
             try {
               await api.setOrderStatus(id, this.value);
-              setStatus(statusEl, `Order #${id} set to ${this.value}.`, 'success');
+              setStatus(statusEl, `Order #${id} is now ${title(this.value)}.`, 'success');
               this.setAttribute('data-previous', this.value);
             } catch (err) {
               setStatus(statusEl, err.message, 'error');
@@ -139,6 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
                       ${isSelf ? 'disabled title="You cannot change your own role"' : ''}>
                 ${user.is_admin ? 'Make Customer' : 'Make Admin'}
               </button>
+              <button class="reset-btn" data-id="${user.id}" data-name="${escapeHtml(user.username)}"
+                      ${isSelf ? 'disabled title="Change your own password by signing in"' : ''}>Reset password</button>
               <button class="delete-btn" data-id="${user.id}" data-name="${escapeHtml(user.username)}"
                       ${isSelf ? 'disabled title="You cannot delete your own account"' : ''}>Delete</button>
             </td>
@@ -157,6 +165,30 @@ document.addEventListener('DOMContentLoaded', function () {
               setStatus(statusEl, `Updated user #${id}.`, 'success');
             } catch (err) {
               setStatus(statusEl, err.message, 'error');
+              this.disabled = false;
+            }
+          });
+        });
+
+        // No email exists, so a forgotten password is recovered here: the
+        // server issues a temporary one, shown once, for the admin to pass on.
+        usersBody.querySelectorAll('.reset-btn').forEach(button => {
+          button.addEventListener('click', async function () {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            if (!window.confirm(`Issue a new temporary password for "${name}"? Their current one stops working.`)) return;
+            this.disabled = true;
+            try {
+              const result = await api.resetPassword(id);
+              statusEl.className = 'admin-status admin-status-success';
+              statusEl.hidden = false;
+              statusEl.innerHTML =
+                `Temporary password for <strong>${escapeHtml(result.username)}</strong>: ` +
+                `<code class="temp-password">${escapeHtml(result.temporary_password)}</code>` +
+                ` Pass it on now. It is not stored in readable form and will not be shown again.`;
+            } catch (err) {
+              setStatus(statusEl, err.message, 'error');
+            } finally {
               this.disabled = false;
             }
           });
@@ -229,6 +261,109 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // -------------------------------------------------------------------------
+  // Dashboard: what needs doing, not a second copy of the navigation
+  // -------------------------------------------------------------------------
+
+  const dashOrders = document.getElementById('dashOrders');
+  if (dashOrders) {
+    const OPEN = ['pending', 'preparing', 'ready'];
+    api.listAllOrders()
+      .then(orders => {
+        const open = orders.filter(o => OPEN.includes(o.status));
+        document.getElementById('dashOrdersCount').textContent = open.length;
+        dashOrders.innerHTML = open.length
+          ? open.slice(0, 6).map(o => `
+              <a class="dash-row" href="view-orders.html">
+                <span class="dash-row__no">#${o.id}</span>
+                <span class="dash-row__main">${escapeHtml(o.contact_name)}
+                  <small>${o.items.map(i => `${i.quantity} × ${escapeHtml(i.product_name || 'item')}`).join(', ')}</small></span>
+                <span class="status status--${escapeHtml(o.status)}">${escapeHtml(title(o.status))}</span>
+              </a>`).join('')
+          : '<p class="table-empty">Nothing waiting. Every order is completed or cancelled.</p>';
+      })
+      .catch(err => { dashOrders.innerHTML = `<p class="admin-status admin-status-error">${escapeHtml(err.message)}</p>`; });
+  }
+
+  const dashMessages = document.getElementById('dashMessages');
+  if (dashMessages) {
+    api.listMessages()
+      .then(messages => {
+        const unread = messages.filter(m => !m.is_read);
+        document.getElementById('dashMessagesCount').textContent = unread.length;
+        dashMessages.innerHTML = unread.length
+          ? unread.slice(0, 4).map(m => `
+              <a class="dash-row" href="view-messages.html">
+                <span class="dash-row__main">${escapeHtml(m.name)}
+                  <small>${escapeHtml(m.body.length > 90 ? m.body.slice(0, 90) + '…' : m.body)}</small></span>
+                <span class="dash-row__when">${formatDate(m.created_at)}</span>
+              </a>`).join('')
+          : '<p class="table-empty">No unread messages.</p>';
+      })
+      .catch(err => { dashMessages.innerHTML = `<p class="admin-status admin-status-error">${escapeHtml(err.message)}</p>`; });
+  }
+
+  // -------------------------------------------------------------------------
+  // Messages
+  // -------------------------------------------------------------------------
+  // The contact form used to show a thank-you and discard the message.
+
+  const messagesBody = document.querySelector('#messagesTable tbody');
+  if (messagesBody) {
+    const statusEl = document.getElementById('messagesStatus');
+
+    const refresh = () =>
+      load(messagesBody, 5, statusEl, () => api.listMessages(), messages => {
+        messages.forEach(m => {
+          const tr = document.createElement('tr');
+          if (!m.is_read) tr.className = 'row-unread';
+          tr.innerHTML = `
+            <td>${m.is_read ? 'Read' : '<strong>New</strong>'}</td>
+            <td>${escapeHtml(m.name)}<br><a href="mailto:${escapeHtml(m.email)}">${escapeHtml(m.email)}</a></td>
+            <td class="message-body">${escapeHtml(m.body)}</td>
+            <td>${formatDate(m.created_at)}</td>
+            <td class="actions">
+              <button class="edit-btn" data-id="${m.id}" data-read="${m.is_read}">
+                ${m.is_read ? 'Mark unread' : 'Mark read'}
+              </button>
+              <button class="delete-btn" data-id="${m.id}">Delete</button>
+            </td>
+          `;
+          messagesBody.appendChild(tr);
+        });
+
+        messagesBody.querySelectorAll('.edit-btn').forEach(button => {
+          button.addEventListener('click', async function () {
+            this.disabled = true;
+            try {
+              await api.markMessage(this.dataset.id, this.dataset.read !== 'true');
+              await refresh();
+            } catch (err) {
+              setStatus(statusEl, err.message, 'error');
+              this.disabled = false;
+            }
+          });
+        });
+
+        messagesBody.querySelectorAll('.delete-btn').forEach(button => {
+          button.addEventListener('click', async function () {
+            if (!window.confirm('Delete this message?')) return;
+            this.disabled = true;
+            try {
+              await api.deleteMessage(this.dataset.id);
+              await refresh();
+              setStatus(statusEl, 'Message deleted.', 'success');
+            } catch (err) {
+              setStatus(statusEl, err.message, 'error');
+              this.disabled = false;
+            }
+          });
+        });
+      });
+
+    refresh();
+  }
+
+  // -------------------------------------------------------------------------
   // Products - shared by add-product, update-product and remove-product
   // -------------------------------------------------------------------------
 
@@ -251,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       tr.innerHTML = `
         <td>${escapeHtml(product.slug)}</td>
-        <td>${escapeHtml(product.name)}</td>
+        <td>${escapeHtml(product.name)}${product.name_ar ? `<br><span class="ar-cell" lang="ar" dir="rtl">${escapeHtml(product.name_ar)}</span>` : ''}</td>
         <td>${escapeHtml(product.category)}</td>
         <td>${money(product.price)}</td>
         <td>${product.available ? 'On sale' : 'Withdrawn'}</td>
@@ -316,6 +451,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const idField = document.getElementById('productDbId');
       const slugField = document.getElementById('productSlug');
       const nameField = document.getElementById('productName');
+      const nameArField = document.getElementById('productNameAr');
       const priceField = document.getElementById('productPrice');
       const categoryField = document.getElementById('productCategory');
       const descField = document.getElementById('productDescription');
@@ -360,6 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
           slugField.value = product.slug;
           slugField.disabled = true; // the slug is the public URL; leave it alone
           nameField.value = product.name;
+          if (nameArField) nameArField.value = product.name_ar || '';
           priceField.value = Number(product.price).toFixed(2);
           categoryField.value = product.category;
           if (descField) descField.value = product.short_description || '';
@@ -404,6 +541,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const payload = {
           name,
+          name_ar: nameArField ? nameArField.value.trim() || null : null,
           price: priceRaw,
           category,
           short_description: descField ? descField.value.trim() : '',

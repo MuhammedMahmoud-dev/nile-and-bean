@@ -1,86 +1,57 @@
+// The menu page: category street plates over a grid of product plates.
 
-document.addEventListener('DOMContentLoaded', function() {
-  const menuProductsContainer = document.getElementById('menuProducts');
-  const categoryButtons = document.querySelectorAll('.category-button');
-  const categoryTitle = document.getElementById('categoryTitle');
-  const noProductsMessage = document.getElementById('noProductsMessage');
+document.addEventListener('DOMContentLoaded', function () {
+  const NB = window.NileBean;
+  const grid = document.getElementById('menuProducts');
+  const count = document.getElementById('menuCount');
+  const empty = document.getElementById('noProductsMessage');
+  const filters = document.querySelectorAll('.filter-plate');
 
-  let activeCategory = 'all';
+  // Deep-linkable: menu.html?category=tea opens on tea.
+  const params = new URLSearchParams(window.location.search);
+  let active = params.get('category') || 'all';
 
-  // Category names mapping
-  const categoryNames = {
-    all: 'All Items',
-    coffee: 'Coffee',
-    tea: 'Tea',
-    pastry: 'Pastries',
-    seasonal: 'Seasonal Specials'
-  };
-
-  // Filter products by category
-  function filterProducts() {
-    const { state, error } = window.NileBean.getLoadState();
-
-    if (categoryTitle) {
-      categoryTitle.textContent = categoryNames[activeCategory];
-    }
-
-    if (state === 'loading') {
-      if (noProductsMessage) noProductsMessage.classList.add('hidden');
-      window.NileBean.renderMessage(menuProductsContainer, 'loading', 'Loading the menu...');
-      return;
-    }
+  function render() {
+    const { state, error } = NB.getLoadState();
 
     if (state === 'error') {
-      if (noProductsMessage) noProductsMessage.classList.add('hidden');
-      window.NileBean.renderMessage(menuProductsContainer, 'error', error.message, true);
+      empty.classList.add('hidden');
+      count.textContent = '';
+      NB.renderMessage(grid, 'error', error.message, true);
       return;
     }
+    if (state !== 'ready') return; // skeleton plates from the markup stay up
 
     // getProducts() reads the live catalogue. This page used to read
     // NileBean.products, a snapshot captured while the array was still empty,
     // so every category rendered zero results (AUDIT.md section 2.1).
-    const allProducts = window.NileBean.getProducts();
-    const filteredProducts = activeCategory === 'all'
-      ? allProducts
-      : allProducts.filter(product => product.category === activeCategory);
+    const all = NB.getProducts();
+    const shown = active === 'all' ? all : all.filter(p => p.category === active);
 
-    if (noProductsMessage) {
-      noProductsMessage.classList.toggle('hidden', filteredProducts.length > 0);
-    }
+    grid.innerHTML = '';
+    shown.forEach(p => grid.appendChild(NB.createProductCard(p)));
 
-    renderProducts(filteredProducts);
+    empty.classList.toggle('hidden', shown.length > 0);
+    count.textContent = `${shown.length} ${shown.length === 1 ? 'item' : 'items'}`;
   }
 
-  // Render products in the container
-  function renderProducts(products) {
-    if (!menuProductsContainer) return;
-
-    menuProductsContainer.innerHTML = '';
-
-    // createProductCard lives in main.js. This file used to carry a
-    // near-identical second copy of it.
-    products.forEach(product => {
-      menuProductsContainer.appendChild(window.NileBean.createProductCard(product));
+  function select(category) {
+    active = category;
+    filters.forEach(btn => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.category === category));
     });
+    const url = new URL(window.location.href);
+    if (category === 'all') url.searchParams.delete('category');
+    else url.searchParams.set('category', category);
+    history.replaceState(null, '', url);
+    render();
   }
 
-  // Add event listeners to category buttons
-  categoryButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      categoryButtons.forEach(btn => {
-        btn.classList.remove('active');
-        btn.setAttribute('aria-pressed', 'false');
-      });
+  filters.forEach(btn => btn.addEventListener('click', () => select(btn.dataset.category)));
 
-      this.classList.add('active');
-      this.setAttribute('aria-pressed', 'true');
+  // An unknown ?category= falls back to everything rather than an empty page.
+  if (![...filters].some(btn => btn.dataset.category === active)) active = 'all';
+  select(active);
 
-      activeCategory = this.getAttribute('data-category');
-      filterProducts();
-    });
-  });
-
-  // Paint the loading state, then re-render once the catalogue arrives.
-  filterProducts();
-  window.NileBean.whenProductsReady().then(filterProducts);
+  NB.whenProductsReady().then(render);
 });

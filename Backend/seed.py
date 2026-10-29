@@ -50,6 +50,7 @@ def seed_products(db) -> tuple[int, int]:
         payload = schemas.ProductCreate(
             slug=entry["id"],
             name=entry["name"],
+            name_ar=entry.get("nameAr"),
             image=entry.get("image"),
             # str() first: Decimal(float) would carry the float's error in.
             price=Decimal(str(entry["price"])),
@@ -129,6 +130,50 @@ def seed_reviews(db, author: models.User) -> int:
     return added
 
 
+# Two orders for the demo customer, so the orders pages are not empty on a fresh
+# install. Placed through crud.create_order, so they are priced by the same rules
+# as any real order.
+SEED_ORDERS = [
+    {
+        "order_type": "pickup",
+        "payment_method": "card",
+        "items": [
+            {"product_slug": "turkish-coffee", "quantity": 2, "size": "Double",
+             "sugar": "Mazboot · medium", "extras": ["Cardamom"]},
+            {"product_slug": "croissant", "quantity": 1},
+        ],
+    },
+    {
+        "order_type": "delivery",
+        "payment_method": "applepay",
+        "address_street": "12 Corniche El Nil",
+        "address_city": "Cairo",
+        "address_zip": "11511",
+        "items": [
+            {"product_slug": "latte", "quantity": 1, "size": "Large", "milk": "Oat"},
+            {"product_slug": "sahlab", "quantity": 1, "extras": ["Extra Nuts"]},
+        ],
+    },
+]
+
+
+def seed_orders(db, customer: models.User) -> int:
+    if db.query(models.Order).filter(models.Order.user_id == customer.id).count():
+        return 0
+    for spec in SEED_ORDERS:
+        crud.create_order(
+            db,
+            customer,
+            schemas.OrderCreate(
+                contact_name=customer.full_name or customer.username,
+                contact_phone="+20 100 000 0000",
+                contact_email=customer.email,
+                **spec,
+            ),
+        )
+    return len(SEED_ORDERS)
+
+
 def main() -> None:
     if not SEED_FILE.is_file():
         raise SystemExit(f"Seed data not found at {SEED_FILE}")
@@ -144,6 +189,10 @@ def main() -> None:
         print("Seeding reviews...")
         added = seed_reviews(db, customer)
         print(f"  {added} added")
+
+        print("Seeding demo orders...")
+        placed = seed_orders(db, customer)
+        print(f"  {placed} placed")
 
     print("\nDone.")
     print(f"  admin    / {ADMIN_PASSWORD}")

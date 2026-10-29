@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .config import DEV_SECRET_KEY, ENVIRONMENT, FRONTEND_DIR, SECRET_KEY, cors_origins
-from .routers import auth, orders, products, reviews, users
+from .routers import auth, messages, orders, products, reviews, users
 
 logger = logging.getLogger("nilebean")
 
@@ -53,6 +53,7 @@ app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(users.router)
 app.include_router(reviews.router)
+app.include_router(messages.router)
 
 
 @app.exception_handler(Exception)

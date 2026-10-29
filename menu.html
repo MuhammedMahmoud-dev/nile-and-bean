@@ -1,120 +1,140 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Menu - Nile & Bean</title>
-    <meta name="description" content="Discover our handcrafted drinks and freshly baked pastries. Nile & Bean brings the café experience to your door." />
-    <meta name="author" content="Muhammed Mahmoud Ahmed" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The menu, Nile &amp; Bean</title>
+    <meta name="description" content="The Nile &amp; Bean menu: Turkish coffee, espresso drinks, mint tea, sahlab and pastries." />
+    <meta name="theme-color" content="#1c3f94" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/aref-ruqaa-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/readex-pro-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Motion is opt-in: without JS every element renders in its final state. -->
+    <script>document.documentElement.classList.add('js');</script>
   </head>
-
   <body>
-    <div id="root">
-      <header class="navbar">
-        <div class="navbar-container">
-          <div class="navbar-logo">
-            <a href="index.html">Nile & Bean</a>
-          </div>
-          <nav class="navbar-nav">
-            <ul>
-              <li><a href="index.html">Home</a></li>
-              <li><a href="menu.html" class="active">Menu</a></li>
-              <li><a href="about.html">About Us</a></li>
-              <li id="accountNav"></li>
-            </ul>
-          </nav>
-          <div class="navbar-cart">
-            <a href="cart.html" class="cart-button" aria-label="View cart">
-              <span class="cart-icon" aria-hidden="true">🛒</span>
-              <span class="cart-count" id="cartCount" aria-label="items in cart">0</span>
-            </a>
-          </div>
-          <button class="mobile-menu-button" id="mobileMenuButton"
-                  aria-expanded="false" aria-controls="mobileMenu"
-                  aria-label="Toggle navigation">☰</button>
-        </div>
-        <div class="mobile-menu" id="mobileMenu">
-          <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Menu</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="cart.html">Cart</a></li>
-          </ul>
-        </div>
-      </header>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-      <main>
-        <!-- Hero Section -->
-        <section class="hero menu-hero">
-          <div class="hero-content">
-            <h1>Our Menu</h1>
-            <p>Discover our handcrafted drinks and freshly baked pastries</p>
-          </div>
-        </section>
-
-        <!-- Menu Categories -->
-        <section class="coffee-section">
-          <div class="coffee-container">
-            <div class="category-filters">
-              <button class="category-button active" data-category="all">All Items</button>
-              <button class="category-button" data-category="coffee">Coffee</button>
-              <button class="category-button" data-category="tea">Tea</button>
-              <button class="category-button" data-category="pastry">Pastries</button>
-              <button class="category-button" data-category="seasonal">Seasonal Specials</button>
-            </div>
-            
-            <h2 class="section-title" id="categoryTitle">All Items</h2>
-            
-            <div class="products-grid" id="menuProducts">
-              <!-- Products will be loaded with JavaScript -->
-            </div>
-            
-            <div id="noProductsMessage" class="no-products hidden">
-              <p>No products found in this category</p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer>
-        <div class="coffee-container">
-          <div class="footer-grid">
-            <div class="footer-column">
-              <h3>Nile & Bean</h3>
-              <p>Making coffee ordering feel as warm and personal as visiting your favorite café.</p>
-              <p>&copy; <span id="currentYear">2025</span> Nile & Bean. All rights reserved.</p>
-            </div>
-            
-            <div class="footer-column">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="menu.html">Menu</a></li>
-                <li><a href="about.html">About Us</a></li>
-              </ul>
-            </div>
-            
-            <div class="footer-column">
-              <h3>Team</h3>
-              <ul>
-                <li>Muhammed Mahmoud Ahmed</li>
-                <li>Mohammed Mahmood Hamed</li>
-                <li>Mostafa Mohamed</li>
-                <li>Aliaa Nagdy</li>
-                <li>Menna Ahmed Reda</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+    <div class="demo-strip">
+      <strong>Portfolio demo.</strong> Orders and payments are simulated: nothing is charged, made or delivered.
     </div>
-    
+
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="brand plate" href="index.html" aria-label="Nile and Bean, home">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html" aria-current="page">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a class="nav-plate account-plate" id="accountNav" href="login.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span>
+          </a>
+          <a class="cart-plate" href="cart.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg><span class="cart-label">Cart</span>
+            <span class="cart-count" id="cartCount">0</span><span class="visually-hidden"> items</span>
+          </a>
+          <button class="menu-toggle" id="mobileMenuButton" type="button"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu wrap" id="mobileMenu" aria-label="Main, mobile">
+        <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html" aria-current="page">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          <li><a class="nav-plate" id="accountNavMobile" href="login.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main">
+      <div class="wrap page-head">
+        <div class="sign-heading">
+          <span class="ar" lang="ar" dir="rtl">المنيو</span>
+          <h1>The menu</h1>
+          <p>Everything is made to order. Prices are in Egyptian pounds.</p>
+        </div>
+      </div>
+
+      <div class="wrap" style="padding-bottom: 5rem">
+        <div class="filter-plates" role="group" aria-label="Filter by category">
+            <button class="filter-plate" type="button" data-category="all" aria-pressed="true">All <span class="ar" lang="ar" dir="rtl">الكل</span></button>
+            <button class="filter-plate" type="button" data-category="coffee" aria-pressed="false">Coffee <span class="ar" lang="ar" dir="rtl">قهوة</span></button>
+            <button class="filter-plate" type="button" data-category="tea" aria-pressed="false">Tea <span class="ar" lang="ar" dir="rtl">شاي</span></button>
+            <button class="filter-plate" type="button" data-category="pastry" aria-pressed="false">Pastries <span class="ar" lang="ar" dir="rtl">معجنات</span></button>
+            <button class="filter-plate" type="button" data-category="seasonal" aria-pressed="false">Seasonal <span class="ar" lang="ar" dir="rtl">موسمي</span></button>
+        </div>
+        <p class="menu-count" id="menuCount" aria-live="polite"></p>
+        <div class="plates-grid" id="menuProducts">
+          <div class="skeleton skeleton--plate"></div>
+          <div class="skeleton skeleton--plate"></div>
+          <div class="skeleton skeleton--plate"></div>
+          <div class="skeleton skeleton--plate"></div>
+        </div>
+        <div id="noProductsMessage" class="state-message hidden">
+          <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cup"></use></svg>
+          <p>Nothing in this category right now.</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer on-dark">
+      <div class="wrap">
+        <div class="site-footer__grid">
+          <div>
+            <span class="site-footer__name">
+              <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+              <span class="brand__en">NILE &amp; BEAN</span>
+            </span>
+            <p style="margin-top: 1rem; max-width: 42ch">
+              An Egyptian café's ordering site, built as a portfolio project. Orders and payments are simulated.
+            </p>
+          </div>
+          <div>
+            <h2>Visit</h2>
+            <ul>
+              <li><a href="menu.html">The menu</a></li>
+              <li><a href="orders.html">My orders</a></li>
+              <li><a href="about.html">About &amp; contact</a></li>
+              <li><a href="login.html">Sign in</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Team</h2>
+            <ul>
+              <li>Muhammed Mahmoud Ahmed</li>
+              <li>Ziad Mohamed</li>
+              <li>Mohammed Mahmood Hamed</li>
+              <li>Aliaa Nagdy</li>
+              <li>Menna Ahmed Reda</li>
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__base">
+          <span>&copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.</span>
+          <span>Photography from Unsplash.</span>
+        </div>
+      </div>
+    </footer>
+
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
     <script src="js/menu.js"></script>

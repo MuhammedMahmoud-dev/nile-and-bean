@@ -1,9 +1,11 @@
 # Nile & Bean
 
-An online coffee shop: browse a menu, configure a drink, and place an order for
-pickup or delivery. Staff sign in to manage orders, products, users and reviews.
+An Egyptian café's ordering site, **النيل والبُن**: browse the board, build a drink
+down to its sugar level, and order for pickup or delivery. Staff sign in to run the
+shop: orders, the menu, users, reviews and messages.
 
-Vanilla JavaScript frontend, FastAPI backend, SQLite.
+Vanilla JavaScript frontend, FastAPI backend, SQLite. A portfolio project: ordering
+and payment are simulated, and the site says so on every page.
 
 ![The Nile & Bean home page](assets/screenshots/home.png)
 
@@ -20,7 +22,8 @@ Two of us wrote the code: **I built the backend, Ziad Mohamed built the frontend
 the design.**
 
 Everything after that first commit — the audit, the removals, the bug fixes, the
-rebuilt API, the authentication, the tests — is **my own work, done solo**. The
+rebuilt API, the authentication, the tests, the redesign — is **my own work, done
+solo**. The
 history is deliberately unsquashed so the two are separable: `git diff 41c611b HEAD`
 is exactly the boundary between what the team delivered and what I changed.
 
@@ -59,10 +62,12 @@ Read the full findings in **[AUDIT.md](AUDIT.md)**. In short:
 | **Audited** | Documented the received state with every claim marked as executed, read, or inferred. The three structural bugs were reproduced in a browser before being fixed. |
 | **Deleted** | 16,257 lines across 96 unreachable files — the React scaffold, the duplicate root assets, generator config and lockfiles, and the vendor telemetry script that shipped on every public page. |
 | **Fixed** | The menu rendering nothing, the cart UI never updating, and option upcharges being displayed and then dropped. Plus filename casing that would 404 on any Linux host, and unguarded `JSON.parse` calls that blanked the site on a corrupt storage value. |
-| **Connected** | Rewrote the backend into a real API — 19 endpoints, JWT auth, admin authorization, Alembic migrations, server-computed order totals — and rewired the whole frontend onto it. |
+| **Connected** | Rewrote the backend into a real API — 25 endpoints, JWT auth, admin authorization, Alembic migrations, server-computed order totals — and rewired the whole frontend onto it. |
 | **Secured** | Added login, logout, role checks on every admin endpoint, and validation at every boundary. Order totals are computed from the database; a price sent by a client is ignored. |
-| **Tested** | 123 tests where there were none, plus CI on every push. |
-| **Measured** | 115 colour pairs checked in a real browser for WCAG AA; every page verified at 360, 768 and 1440px. |
+| **Completed** | Closed every dead end: an order confirmation, a My orders page, a contact form whose messages reach an admin inbox, and a password reset that works without email. |
+| **Redesigned** | Replaced the generic coffee template with a visual identity drawn from Cairo shop signs — enamel street plates, Arabic over English, prices in Egyptian pounds — plus the Egyptian menu it was missing: Turkish coffee by sugar level, mint tea, sahlab. |
+| **Tested** | 164 tests where there were none, plus CI on every push. |
+| **Measured** | 208 colour pairs checked in a real browser for WCAG AA; every page verified at 360, 768 and 1440px. |
 
 The three bugs, concretely:
 
@@ -106,8 +111,9 @@ origin, so there is nothing else to start. Interactive API docs are at
 **http://127.0.0.1:8000/docs**.
 
 The database is created by `alembic upgrade head` at `Backend/cafe.db` and is
-gitignored — it is generated, never committed. `seed.py` loads the nine products
-from `Backend/seed_data.json`; it is idempotent, so re-running it is safe.
+gitignored — it is generated, never committed. `seed.py` loads twelve products from
+`Backend/seed_data.json`, two demo accounts, four demo reviews and two demo orders;
+it is idempotent, so re-running it is safe.
 
 ### Demo accounts
 
@@ -139,7 +145,7 @@ All optional; every one has a working default.
 | `DATABASE_URL` | `sqlite:///Backend/cafe.db` | Database location |
 | `SECRET_KEY` | a development value | JWT signing key. **Set this in production** — the default is public, and anyone who knows it can mint a valid token. |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Token lifetime |
-| `TAX_RATE` | `0.08` | Sales tax, applied server-side |
+| `TAX_RATE` | `0.14` | Egyptian VAT, applied server-side |
 | `ENVIRONMENT` | `development` | `development` enables the dev CORS allow-list |
 | `CORS_ORIGINS` | empty | Comma-separated allow-list when `ENVIRONMENT` is not `development` |
 
@@ -149,30 +155,32 @@ All optional; every one has a working default.
 
 ```
 deliverable_03-master/
-├── index.html  menu.html  product.html  cart.html  about.html   customer pages
-├── login.html  logout.html                                      auth
-├── admin.html  view-orders.html  manage-users.html              admin pages
-│   view-reviews.html  add-product.html
-│   update-product.html  remove-product.html
+├── index.html  menu.html  product.html  cart.html            customer pages
+│   order.html  orders.html  about.html
+├── login.html  logout.html  reset-password.html               auth
+├── admin.html  view-orders.html  manage-users.html            admin pages
+│   view-reviews.html  view-messages.html
+│   add-product.html  update-product.html  remove-product.html
 ├── js/
 │   ├── api.js            API client, session, error translation
 │   ├── main.js           cart + catalogue state, the single source of truth
-│   ├── menu.js  product.js  cart.js  about.js   page behaviour
+│   ├── menu.js  product.js  cart.js  order.js  orders.js  about.js
 │   ├── auth.js           sign in / register
-│   ├── admin.js          all six admin pages
+│   ├── admin.js          all admin pages
 │   └── admin-guard.js    client-side admin redirect
-├── css/styles.css  css/admin.css
+├── css/styles.css  css/admin.css  css/fonts.css
+├── assets/               self-hosted fonts, SVG icon sprite, favicon, share image
 ├── tests/                vitest, jsdom
 └── Backend/
     ├── app/
     │   ├── main.py       app, CORS, static mount, error handler
     │   ├── config.py     settings, TAX_RATE, paths
     │   ├── database.py   engine, session, SQLite foreign keys
-    │   ├── models.py     User, Product, Order, OrderItem, Review
+    │   ├── models.py     User, Product, Order, OrderItem, Review, Message
     │   ├── schemas.py    Pydantic v2 request/response schemas
     │   ├── security.py   hashing, JWT, current-user dependencies
     │   ├── crud.py       queries and the authoritative pricing rules
-    │   └── routers/      auth, products, orders, users, reviews
+    │   └── routers/      auth, products, orders, users, reviews, messages
     ├── alembic/          migrations
     ├── seed.py           seed_data.json -> database
     └── tests/            pytest
@@ -184,13 +192,16 @@ deliverable_03-master/
 User ──< Order ──< OrderItem >── Product
  │                                  │
  └──< Review >──────────────────────┘
+
+Message   (contact form; stands alone)
 ```
 
 - **Order is a header with line items.** The original model held one `product_id`
   and one `quantity` per order, so it could not represent a cart containing two
   different products — something the checkout UI has always let a customer build.
-- **`OrderItem` carries the chosen options** (size, milk, extras, notes), which
-  previously had no column anywhere despite being shown in the cart.
+- **`OrderItem` carries the chosen options** (size, milk, sugar level, extras,
+  notes), which previously had no column anywhere despite being shown in the cart.
+- **Every `Product` has an Arabic name** (`name_ar`), lettered above the English.
 - **Money is `Numeric(10, 2)`, read back as `Decimal`.** `price` used to be an
   `Integer`, which cannot represent $2.99. No money is held as a float at any point.
 - **Line prices are copied at purchase time**, so repricing a product does not
@@ -226,7 +237,7 @@ received code** and was kept unchanged.
 
 ## API
 
-19 endpoints. Full interactive documentation at `/docs` when the server is running.
+25 endpoints. Full interactive documentation at `/docs` when the server is running.
 
 **Auth**
 
@@ -253,18 +264,24 @@ received code** and was kept unchanged.
 |---|---|---|---|
 | `POST` | `/api/orders` | Signed in | Totals computed server-side |
 | `GET` | `/api/orders/me` | Signed in | Only the caller's own orders |
+| `GET` | `/api/orders/{id}` | Signed in | Owner or admin; anyone else gets 404, so ids can't be probed |
 | `GET` | `/api/orders` | Admin | |
 | `PATCH` | `/api/orders/{id}/status` | Admin | pending / preparing / ready / completed / cancelled |
 
-**Users and reviews**
+**Users, reviews and messages**
 
 | Method | Path | Access | Notes |
 |---|---|---|---|
 | `GET` | `/api/users` | Admin | |
 | `PATCH` | `/api/users/{id}` | Admin | Cannot remove your own admin access |
 | `DELETE` | `/api/users/{id}` | Admin | 409 if the user has orders |
+| `POST` | `/api/users/{id}/reset-password` | Admin | Returns a temporary password once; only its hash is stored |
 | `GET` | `/api/reviews` | Admin | |
 | `DELETE` | `/api/reviews/{id}` | Admin | |
+| `POST` | `/api/messages` | Public | The contact form |
+| `GET` | `/api/messages` | Admin | Unread first |
+| `PATCH` | `/api/messages/{id}` | Admin | Mark read or unread |
+| `DELETE` | `/api/messages/{id}` | Admin | |
 | `GET` | `/api/health` | Public | |
 
 Anonymous callers get **401**, signed-in non-admins get **403** — the caller is
@@ -276,11 +293,11 @@ known, just not permitted.
 
 | | |
 |---|---|
-| **Menu** — nine products from the API, filtered by category | **Product** — options priced live |
+| **Menu** — twelve products from the API, filtered by category | **Product** — Turkish coffee by sugar level, priced live |
 | ![Menu](assets/screenshots/menu.png) | ![Product detail](assets/screenshots/product.png) |
-| **Checkout** — validated, with a server-computed total | **Sign in** |
-| ![Checkout](assets/screenshots/checkout.png) | ![Sign in](assets/screenshots/login.png) |
-| **Admin dashboard** | **Orders** — live, with status changes |
+| **Checkout** — every field validated | **Order confirmation** — the server's total |
+| ![Checkout](assets/screenshots/checkout.png) | ![Order confirmation](assets/screenshots/order.png) |
+| **Admin dashboard** — open orders and unread messages | **Orders** — live, with status changes |
 | ![Admin dashboard](assets/screenshots/admin.png) | ![Admin orders](assets/screenshots/admin-orders.png) |
 | **Product management** — edit in place, or withdraw from sale | **Mobile** — 390px |
 | ![Admin products](assets/screenshots/admin-products.png) | <img src="assets/screenshots/home-mobile.png" width="260" alt="The home page at mobile width"> |
@@ -291,10 +308,28 @@ known, just not permitted.
 
 | | |
 |---|---|
-| **Tests** | 123 — 91 pytest, 32 vitest. Each of the three structural bugs has a regression test. |
+| **Tests** | 164 — 119 pytest, 45 vitest. Each of the three structural bugs has a regression test, and so does the escaping that keeps admin-entered product names from becoming script on customers' pages. |
 | **CI** | `.github/workflows/tests.yml` — pytest, vitest, and a link checker that runs on Linux, where the filename-casing bug would have surfaced. `alembic check` fails the build if the models drift from the migrations. |
-| **Accessibility** | 115 colour pairs measured in a browser against WCAG AA: 0 failures, lowest ratio 5.74. All interactive elements are keyboard-reachable and have accessible names. |
+| **Accessibility** | 208 colour pairs across 17 pages measured in a browser against WCAG AA: 0 failures. All interactive elements are keyboard-reachable and have accessible names; `prefers-reduced-motion` turns the animation off. |
+| **Performance** | Fonts self-hosted and preloaded (129 KB), images requested at the size each slot needs, no photograph in the first viewport. |
 | **Responsive** | Verified at 360 / 768 / 1440px with no horizontal page scroll. |
+
+---
+
+## Design
+
+The visual direction — **Cairo shopfront signs** — was chosen from four candidates
+on a decision page, then built and checked by an independent design review against a
+written contract. `PRODUCT.md` records the product facts the design must respect;
+`DESIGN.md` records the system as built.
+
+- **Plates and boards:** cobalt enamel street plates with an inset white rule, and
+  signpainter red and saffron shop boards.
+- **Lettering:** Arabic over English. Aref Ruqaa sets the Arabic, Bungee with a
+  painted drop shade sets the English, and Readex Pro sets everything you read.
+- **Motion:** one authored moment. The shop board drops onto its chains and swings
+  to rest, the Arabic is lettered in right to left, the English left to right, and
+  the day's prices are chalked onto the board.
 
 ---
 

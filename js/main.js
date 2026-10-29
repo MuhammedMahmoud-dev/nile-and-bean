@@ -4,13 +4,92 @@
 // reach it through the accessor functions on window.NileBean and must not keep
 // their own copies: a second copy drifts out of sync with this one the moment
 // either is mutated (AUDIT.md section 2.2).
-//
-// The catalogue is loaded from the API. It used to be a nine-item array
-// hardcoded in this file; those nine products are now seed data for the
-// database (Backend/seed_data.json).
 
 const CART_STORAGE_KEY = 'nilebeanCart';
-const TAX_RATE = 0.08; // Display only. The server computes the authoritative total.
+
+// Egyptian VAT. Display only: the server computes the authoritative total.
+const TAX_RATE = 0.14;
+
+// ---------------------------------------------------------------------------
+// Formatting
+// ---------------------------------------------------------------------------
+
+// Whole pounds read as "EGP 95"; piastres appear only when there are some.
+function formatEGP(amount) {
+  const n = Number(amount) || 0;
+  const whole = Math.abs(n - Math.round(n)) < 0.005;
+  return `EGP ${whole ? Math.round(n).toLocaleString('en') : n.toFixed(2)}`;
+}
+
+// Escape anything interpolated into innerHTML. Product names now come from an
+// admin form rather than a hardcoded array, so unescaped they would be a
+// stored-XSS path from the admin area to every customer.
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Unsplash serves any width on request; ask for what the slot needs, not the
+// 3000px originals the seed data points at.
+function imageUrl(src, width, ratio = '4:3') {
+  if (!src) return '';
+  if (!/images\.unsplash\.com/.test(src)) return src;
+  const base = src.split('?')[0];
+  return `${base}?w=${width}&q=70&auto=format&fit=crop&ar=${ratio}`;
+}
+
+function imageSrcset(src, widths, ratio) {
+  if (!src || !/images\.unsplash\.com/.test(src)) return '';
+  return widths.map(w => `${imageUrl(src, w, ratio)} ${w}w`).join(', ');
+}
+
+// The sugar levels carry their Arabic name on the plate.
+const SUGAR_AR = {
+  'Sada · no sugar': 'سادة',
+  "'Al-reeha · a hint": 'ع الريحة',
+  'Mazboot · medium': 'مظبوط',
+  'Ziyada · sweet': 'زيادة'
+};
+
+const CATEGORY_AR = {
+  coffee: 'قهوة',
+  tea: 'شاي',
+  pastry: 'معجنات',
+  seasonal: 'موسمي'
+};
+
+// Eastern Arabic numerals, as a Cairo price board writes them.
+function toArabicDigits(value) {
+  return String(value).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+
+function formatArabicPrice(amount) {
+  const n = Number(amount) || 0;
+  const whole = Math.abs(n - Math.round(n)) < 0.005;
+  return `${toArabicDigits(whole ? Math.round(n) : n.toFixed(2))} ج.م`;
+}
+
+// A photo that fails to load is swapped for a plate carrying the name, so a
+// dead image link can never show a broken-image box (finish review, fix 1).
+function photoFallback(img, product) {
+  const plate = document.createElement('div');
+  plate.className = 'photo-fallback';
+  plate.setAttribute('role', 'img');
+  plate.setAttribute('aria-label', product.name);
+  plate.innerHTML =
+    (product.nameAr ? `<span class="ar" lang="ar" dir="rtl">${escapeHtml(product.nameAr)}</span>` : '') +
+    `<span>${escapeHtml(product.name)}</span>`;
+  img.replaceWith(plate);
+}
+
+function guardPhoto(img, product) {
+  if (!img) return;
+  img.addEventListener('error', () => photoFallback(img, product), { once: true });
+}
+
+function icon(name) {
+  return `<svg class="icon" aria-hidden="true"><use href="assets/icons.svg#${name}"></use></svg>`;
+}
 
 // ---------------------------------------------------------------------------
 // Storage helpers
@@ -24,7 +103,6 @@ function readJSON(key, fallback) {
   try {
     raw = localStorage.getItem(key);
   } catch (err) {
-    // Storage can be unavailable entirely: private mode, disabled site data.
     console.warn(`localStorage is unavailable; continuing without it (${err.message})`);
     return fallback;
   }
@@ -50,7 +128,6 @@ function writeJSON(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
     return true;
   } catch (err) {
-    // Most likely a quota error, or site data disabled.
     console.error(`Could not save "${key}": ${err.message}`);
     showToast('Your browser is blocking storage, so this could not be saved.');
     return false;
@@ -63,7 +140,6 @@ function writeJSON(key, value) {
 
 let cart = readJSON(CART_STORAGE_KEY, []);
 if (!Array.isArray(cart)) {
-  // Well-formed JSON of the wrong shape, e.g. an object left by an old build.
   console.warn('Stored cart was not an array; starting from an empty cart.');
   cart = [];
 }
@@ -97,11 +173,20 @@ function persistCart() {
   updateCartCount();
 }
 
+let lastShownCount = null;
+
 function updateCartCount() {
-  const cartCountElement = document.getElementById('cartCount');
-  if (cartCountElement) {
-    cartCountElement.textContent = getCartCount();
+  const el = document.getElementById('cartCount');
+  if (!el) return;
+  const count = getCartCount();
+  el.textContent = count;
+  // A small bump when the number changes, so adding to the cart is felt.
+  if (lastShownCount !== null && count !== lastShownCount) {
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
   }
+  lastShownCount = count;
 }
 
 function addToCart(product, quantity = 1, options = {}) {
@@ -118,7 +203,7 @@ function addToCart(product, quantity = 1, options = {}) {
   });
 
   persistCart();
-  showToast(`Added ${product.name} to cart`);
+  showToast(`Added ${product.name} to your cart`);
 }
 
 function updateCartItem(index, updates) {
@@ -133,7 +218,7 @@ function removeCartItem(index) {
     const removedItem = cart[index];
     cart.splice(index, 1);
     persistCart();
-    showToast(`Removed ${removedItem.name} from cart`);
+    showToast(`Removed ${removedItem.name} from your cart`);
   }
 }
 
@@ -188,6 +273,7 @@ function normaliseProduct(raw) {
     id: raw.slug,
     productId: raw.id,
     name: raw.name,
+    nameAr: raw.name_ar || '',
     image: raw.image,
     price: num(raw.price),
     category: raw.category,
@@ -244,7 +330,7 @@ function calculateTotalPrice(product, size = null, extras = []) {
     });
   }
 
-  // Round to cents: 4.49 + 0.99 is 5.4799999999999995 in binary floating point.
+  // Round to piastres: binary floating point would otherwise leak through.
   return Math.round(total * 100) / 100;
 }
 
@@ -252,22 +338,28 @@ function calculateTotalPrice(product, size = null, extras = []) {
 // Rendering
 // ---------------------------------------------------------------------------
 
-// The one definition. menu.js used to carry a near-identical copy of this.
+// The one definition of a product plate: photo, cobalt enamel name plate with
+// the Arabic name over the English, and a saffron price tag.
 function createProductCard(product) {
-  const productCard = document.createElement('div');
-  productCard.className = 'product-card';
-  productCard.innerHTML = `
-    <div class="product-image">
-      <img src="${product.image}" alt="${product.name}">
-    </div>
-    <div class="product-details">
-      <h3 class="product-title">${product.name}</h3>
-      <div class="product-price">$${product.price.toFixed(2)}</div>
-      <p class="product-description">${product.shortDescription}</p>
-      <a href="product.html?id=${encodeURIComponent(product.id)}" class="button">View Details</a>
-    </div>
+  const link = document.createElement('a');
+  link.className = 'product-plate';
+  link.href = `product.html?id=${encodeURIComponent(product.id)}`;
+  link.innerHTML = `
+    <img class="product-plate__photo"
+         src="${escapeHtml(imageUrl(product.image, 600))}"
+         srcset="${escapeHtml(imageSrcset(product.image, [400, 600, 900]))}"
+         sizes="(max-width: 600px) 92vw, (max-width: 1100px) 45vw, 300px"
+         width="600" height="450" loading="lazy" decoding="async"
+         alt="${escapeHtml(product.name)}">
+    <span class="price-tag">${escapeHtml(formatEGP(product.price))}</span>
+    <span class="product-plate__body">
+      ${product.nameAr ? `<span class="product-plate__ar" lang="ar" dir="rtl">${escapeHtml(product.nameAr)}</span>` : ''}
+      <span class="product-plate__en">${escapeHtml(product.name)}</span>
+      <span class="product-plate__desc">${escapeHtml(product.shortDescription)}</span>
+    </span>
   `;
-  return productCard;
+  guardPhoto(link.querySelector('img'), product);
+  return link;
 }
 
 function renderMessage(container, kind, text, retry = false) {
@@ -276,14 +368,13 @@ function renderMessage(container, kind, text, retry = false) {
   const box = document.createElement('div');
   box.className = `state-message state-${kind}`;
   box.setAttribute('role', kind === 'error' ? 'alert' : 'status');
-  box.textContent = text;
+  box.innerHTML = `${icon(kind === 'error' ? 'alert' : 'cup')}<p>${escapeHtml(text)}</p>`;
   if (retry) {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'button';
+    button.className = 'btn btn--red';
     button.textContent = 'Try again';
     button.addEventListener('click', () => window.location.reload());
-    box.appendChild(document.createElement('br'));
     box.appendChild(button);
   }
   container.appendChild(box);
@@ -293,7 +384,7 @@ function renderFeaturedProducts() {
   const container = document.getElementById('featuredProducts');
   if (!container) return;
 
-  if (loadState === 'loading') return renderMessage(container, 'loading', 'Loading the menu...');
+  if (loadState === 'loading') return; // skeletons from the markup stay up
   if (loadState === 'error') {
     return renderMessage(container, 'error', loadError.message, true);
   }
@@ -301,28 +392,36 @@ function renderFeaturedProducts() {
   container.innerHTML = '';
   getProducts()
     .filter(product => product.featured)
+    .slice(0, 6)
     .forEach(product => container.appendChild(createProductCard(product)));
 }
 
-function renderSpecialProducts() {
-  const container = document.getElementById('specialProducts');
-  if (!container || loadState !== 'ready') return;
+// The price board on the shop front: today's drinks, priced by the API.
+function renderPriceBoard() {
+  const board = document.getElementById('priceBoard');
+  if (!board) return;
 
-  container.innerHTML = '';
-  getProducts()
-    .filter(product => product.featured)
-    .slice(0, 2)
-    .forEach(product => {
-      const specialCard = document.createElement('div');
-      specialCard.className = 'special-card';
-      specialCard.innerHTML = `
-        <h3>${product.name}</h3>
-        <p>${product.shortDescription}</p>
-        <div class="special-price">$${product.price.toFixed(2)}</div>
-        <a href="product.html?id=${encodeURIComponent(product.id)}" class="button light-button">Order Now</a>
-      `;
-      container.appendChild(specialCard);
-    });
+  if (loadState === 'error') {
+    board.innerHTML = `<p class="state-message state-error" role="alert">${icon('alert')}${escapeHtml(loadError.message)}</p>`;
+    return;
+  }
+
+  const rows = getProducts().filter(p => p.featured).slice(0, 6);
+  board.innerHTML = rows
+    .map(
+      (p, i) => `
+      <a class="price-row" href="product.html?id=${encodeURIComponent(p.id)}" style="--i:${i}">
+        <span class="price-row__names">
+          ${p.nameAr ? `<span class="price-row__ar" lang="ar" dir="rtl">${escapeHtml(p.nameAr)}</span>` : ''}
+          <span class="price-row__en">${escapeHtml(p.name)}</span>
+        </span>
+        <span class="price-row__prices">
+          <span class="price-row__price">${escapeHtml(formatEGP(p.price))}</span>
+          <span class="price-row__ar-price" lang="ar" dir="rtl">${formatArabicPrice(p.price)}</span>
+        </span>
+      </a>`
+    )
+    .join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -330,23 +429,22 @@ function renderSpecialProducts() {
 // ---------------------------------------------------------------------------
 
 function renderAccountNav() {
-  const slot = document.getElementById('accountNav');
-  if (!slot) return;
-
   const api = window.NileBeanAPI;
   const user = api.getUser();
 
-  // slot is itself the <li>; fill it rather than nesting another one.
-  slot.innerHTML = '';
-  const link = document.createElement('a');
-  if (user) {
-    link.href = 'logout.html';
-    link.textContent = `Sign out (${user.username})`;
-  } else {
-    link.href = 'login.html';
-    link.textContent = 'Sign in';
-  }
-  slot.appendChild(link);
+  ['accountNav', 'accountNavMobile'].forEach(id => {
+    const link = document.getElementById(id);
+    if (!link) return;
+    if (user) {
+      link.href = 'logout.html';
+      link.innerHTML = `${icon('logout')}<span>Sign out <span class="visually-hidden">${escapeHtml(user.username)}</span></span>`;
+      link.title = `Signed in as ${user.username}`;
+    } else {
+      link.href = 'login.html';
+      link.innerHTML = `${icon('user')}<span>Sign in</span>`;
+      link.removeAttribute('title');
+    }
+  });
 
   // The Admin link is only meaningful to an administrator. The guard on the
   // page itself is what actually enforces this; hiding the link is courtesy.
@@ -363,7 +461,8 @@ function showToast(message) {
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.setAttribute('role', 'status');
-  toast.textContent = message;
+  toast.innerHTML = `${icon('check')}<span></span>`;
+  toast.querySelector('span').textContent = message;
   document.body.appendChild(toast);
 
   // Force a style flush so the transition off the base class actually runs.
@@ -375,6 +474,7 @@ function showToast(message) {
   setTimeout(() => {
     toast.classList.remove('toast-visible');
     toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    setTimeout(() => toast.remove(), 600); // reduced motion fires no transitionend
   }, 3000);
 }
 
@@ -386,6 +486,16 @@ function showToast(message) {
 
 window.NileBean = {
   TAX_RATE,
+  SUGAR_AR,
+  CATEGORY_AR,
+  formatEGP,
+  formatArabicPrice,
+  toArabicDigits,
+  guardPhoto,
+  escapeHtml,
+  imageUrl,
+  imageSrcset,
+  icon,
   getProducts,
   getProductById,
   getLoadState,
@@ -421,19 +531,19 @@ document.addEventListener('DOMContentLoaded', function () {
   updateCartCount();
   renderAccountNav();
 
-  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  const toggle = document.getElementById('mobileMenuButton');
   const mobileMenu = document.getElementById('mobileMenu');
-  if (mobileMenuButton && mobileMenu) {
-    mobileMenuButton.addEventListener('click', function () {
+  if (toggle && mobileMenu) {
+    toggle.addEventListener('click', function () {
       const isOpen = mobileMenu.classList.toggle('active');
-      mobileMenuButton.setAttribute('aria-expanded', String(isOpen));
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+      toggle.innerHTML = icon(isOpen ? 'close' : 'menu');
     });
   }
 
-  // Paint the loading state, then the result.
-  renderFeaturedProducts();
   whenProductsReady().then(() => {
     renderFeaturedProducts();
-    renderSpecialProducts();
+    renderPriceBoard();
   });
 });

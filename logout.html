@@ -2,42 +2,128 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Signing Out - Nile &amp; Bean</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Signing out, Nile &amp; Bean</title>
+    <meta name="description" content="Signing out." />
+    <meta name="theme-color" content="#1c3f94" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="assets/fonts/aref-ruqaa-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/readex-pro-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/fonts.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <!-- Motion is opt-in: without JS every element renders in its final state. -->
+    <script>document.documentElement.classList.add('js');</script>
     <meta name="robots" content="noindex" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css">
   </head>
-
   <body>
-    <div id="root">
-      <main>
-        <section class="coffee-section">
-          <div class="coffee-container text-center">
-            <h1>Signing you out</h1>
-            <p id="logoutMessage" role="status">One moment...</p>
-            <p><a href="index.html" class="button">Back to the shop</a></p>
-          </div>
-        </section>
-      </main>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="demo-strip">
+      <strong>Portfolio demo.</strong> Orders and payments are simulated: nothing is charged, made or delivered.
     </div>
 
-    <script src="js/api.js"></script>
+    <header class="site-header">
+      <div class="wrap site-header__bar">
+        <a class="brand plate" href="index.html" aria-label="Nile and Bean, home">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+
+        <nav class="site-nav" aria-label="Main">
+          <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          </ul>
+        </nav>
+
+        <div class="header-actions">
+          <a class="nav-plate account-plate" id="accountNav" href="login.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span>
+          </a>
+          <a class="cart-plate" href="cart.html">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#cart"></use></svg><span class="cart-label">Cart</span>
+            <span class="cart-count" id="cartCount">0</span><span class="visually-hidden"> items</span>
+          </a>
+          <button class="menu-toggle" id="mobileMenuButton" type="button"
+                  aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">
+            <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#menu"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="mobile-menu wrap" id="mobileMenu" aria-label="Main, mobile">
+        <ul>
+          <li><a class="nav-plate" href="index.html">Home</a></li>
+          <li><a class="nav-plate" href="menu.html">Menu</a></li>
+          <li><a class="nav-plate" href="orders.html">My orders</a></li>
+          <li><a class="nav-plate" href="about.html">About</a></li>
+          <li data-admin-only hidden><a class="nav-plate" href="admin.html">Admin</a></li>
+          <li><a class="nav-plate" id="accountNavMobile" href="login.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span>Sign in</span></a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="main" class="narrow">
+      <div class="panel" style="text-align: center">
+        <svg class="icon" aria-hidden="true"><use href="assets/icons.svg#logout"></use></svg>
+        <h1 style="margin-top: 0.75rem; font-size: 1.6rem; color: var(--enamel)">Signing you out</h1>
+        <p id="logoutMessage" role="status" style="margin-top: 0.5rem; color: var(--ink-soft)">One moment...</p>
+        <p style="margin-top: 1.5rem"><a class="btn btn--red" href="index.html">Back to the shop</a></p>
+      </div>
+    </main>
     <script>
-      // The token is stateless, so signing out means discarding it here. There
-      // is nothing to revoke server-side. The cart is deliberately left alone:
-      // it belongs to the browser, not the account.
-      (function () {
+      // The token is stateless, so signing out means discarding it here. The cart
+      // is left alone: it belongs to the browser, not to the account.
+      document.addEventListener('DOMContentLoaded', function () {
         window.NileBeanAPI.logout();
-        document.getElementById('logoutMessage').textContent =
-          'You are signed out. Returning to the shop...';
-        setTimeout(function () {
-          window.location.replace('index.html');
-        }, 1200);
-      })();
+        document.getElementById('logoutMessage').textContent = 'You are signed out. Taking you back to the shop...';
+        setTimeout(function () { window.location.replace('index.html'); }, 1200);
+      });
     </script>
+
+    <footer class="site-footer on-dark">
+      <div class="wrap">
+        <div class="site-footer__grid">
+          <div>
+            <span class="site-footer__name">
+              <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+              <span class="brand__en">NILE &amp; BEAN</span>
+            </span>
+            <p style="margin-top: 1rem; max-width: 42ch">
+              An Egyptian café's ordering site, built as a portfolio project. Orders and payments are simulated.
+            </p>
+          </div>
+          <div>
+            <h2>Visit</h2>
+            <ul>
+              <li><a href="menu.html">The menu</a></li>
+              <li><a href="orders.html">My orders</a></li>
+              <li><a href="about.html">About &amp; contact</a></li>
+              <li><a href="login.html">Sign in</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>Team</h2>
+            <ul>
+              <li>Muhammed Mahmoud Ahmed</li>
+              <li>Ziad Mohamed</li>
+              <li>Mohammed Mahmood Hamed</li>
+              <li>Aliaa Nagdy</li>
+              <li>Menna Ahmed Reda</li>
+            </ul>
+          </div>
+        </div>
+        <div class="site-footer__base">
+          <span>&copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.</span>
+          <span>Photography from Unsplash.</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
   </body>
 </html>

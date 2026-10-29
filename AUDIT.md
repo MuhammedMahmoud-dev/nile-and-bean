@@ -657,8 +657,9 @@ comments"*. There is no management capability; the page is a static table.
   `product.html` each list the same five names, with one spelled two different ways
   (`Mostafa Moahmed` / `Mostafa Mohamed`). `index.html` carries no Team column at all.
   The contributor these footers name as "Mostafa Mohamed" is Ziad Mohamed, who is
-  credited under that name in README.md — which is why the two lists do not match
-  verbatim.
+  credited under that name in README.md — which is why the received footers and the
+  README do not match verbatim. The redesigned footer (Phase 6) lists him as Ziad
+  Mohamed.
 
 ---
 
@@ -1135,3 +1136,109 @@ uvicorn app.main:app   -> site 200, /docs 200, /api/products 9 products,
 
 **[EXECUTED]** — and the clean checkout, served on port 8021, renders the catalogue
 from its own database: 9 items, 2 tea, 2 pastry, first card *Espresso $2.99*.
+
+### Phase 6 — redesign, an Egyptian identity, and the remaining dead ends
+
+The brief for this phase was to make the site complete and give it a real visual
+identity. Product facts were confirmed first and recorded in `PRODUCT.md`: this is
+a portfolio project, the café is Egyptian (binding), and "complete" means no dead
+ends anywhere.
+
+#### The visual world
+
+Four directions were put on a decision page, and the owner chose **Cairo Shopfront
+Signs**. It replaces the original warm-brown template rather than polishing it.
+
+- **Plates:** cobalt enamel street plates with an inset white rule.
+- **Boards:** signpainter red and saffron shop boards.
+- **Wall:** a flat mint-painted wall as the ground.
+- **Lettering:** Arabic over English. Aref Ruqaa sets the Arabic, since Ruqaa is
+  the script Cairo's signpainters use. Bungee, a face designed for urban signage,
+  sets the English, with a painted drop shade.
+- **Fonts:** self-hosted, 129 KB in total.
+- **Icons:** one SVG sprite in a single stroke, replacing the emoji the site used
+  as icons.
+
+Motion is one authored moment, plus small functional cues:
+
+- **The authored moment:** the shop board drops onto its chains and swings to rest.
+  Then the Arabic is lettered in right-to-left, the English left-to-right, and the
+  day's prices are chalked onto the price board.
+- **Functional cues:** prices flip when a drink's options change, the cart count
+  bumps, and pages cross-fade through the View Transitions API.
+- **Reduced motion:** `prefers-reduced-motion` turns all of it off.
+
+#### An Egyptian café, not a costume
+
+- **Prices are in Egyptian pounds,** and **VAT is 14%**, Egypt's rate. The original
+  8% matched no jurisdiction.
+- **Every product has an Arabic name**, held in a new `name_ar` column and shown the
+  way a bilingual sign is lettered.
+- **Turkish coffee is ordered by sugar level:** sada, 'al-reeha, mazboot, ziyada.
+  That is a new option type end to end: a `sugar` column on the order line, server
+  validation, and the product, cart and order pages.
+- **Three Egyptian drinks were added** to the original nine: Turkish coffee, mint
+  tea and sahlab.
+- **The price board carries Eastern Arabic numerals** (٤٥ ج.م) beside the EGP
+  price.
+
+#### The dead ends, closed
+
+| Was | Now |
+|---|---|
+| After checkout, the customer was sent to the home page with no confirmation | An order ticket page, backed by a new `GET /api/orders/{id}`. Another customer's order answers 404, not 403, so order ids cannot be probed. |
+| `/api/orders/me` existed and no page used it | A **My orders** page |
+| The contact form showed a thank-you toast and discarded the message | Messages are stored (`POST /api/messages`) and listed in a new admin inbox with read and delete |
+| `reset-password.html` explained nothing and led nowhere | Without email, an administrator issues a temporary password (`POST /api/users/{id}/reset-password`). It is shown once and only its hash is stored, and the page explains the process. |
+| The admin dashboard was seven cards that repeated the navigation | It shows the work: open orders and unread messages, with counts |
+
+#### Found and fixed along the way
+
+- **Stored XSS.** Product names now come from an admin form, and every page
+  interpolated them into `innerHTML` unescaped. That was a path from the admin area
+  to every customer's browser. All API data rendered as HTML now goes through
+  `escapeHtml`, and a test proves a hostile name renders as text.
+- **Five wrong product photos, inherited from the received data.** Cappuccino,
+  Americano and Double Chocolate Muffin pointed at Unsplash photos that no longer
+  exist, so they returned 404. Chai Latte showed a chocolate freakshake. Pumpkin
+  Spice Latte showed a glass of wine in a vineyard. The finish review caught these,
+  not the build's own checks: the capture script listened for console errors, and a
+  404 image never raises one.
+  - All five were replaced with verified photos.
+  - A failed image now becomes a plate carrying the product's name.
+  - The capture script now watches every response.
+- **An invented claim.** "Our famous seasonal fall favorite" was removed.
+
+#### Optimisation
+
+- **Images:** requested at the size each slot needs, with `srcset`, instead of the
+  3000px originals the data pointed at.
+- **Fonts:** self-hosted and preloaded, with no third-party font stylesheet blocking
+  first paint.
+- **First viewport:** has no photograph at all. The shop board is CSS and type.
+- **Share image:** rebuilt from the new design, 302 KB → 91 KB.
+
+#### Review and verification
+
+An independent finish reviewer, a fresh agent that did not see the build, judged the
+screenshots against the direction contract. Its first verdict was **fix**, with eight
+material items. Seven were applied as given, and two of those were modified:
+
+- **Pumpkin Spice Latte was kept** rather than replaced with an Egyptian drink,
+  because it is a product the original team shipped. Its photo and its claim were
+  fixed.
+- **The contract's "plaster" and "hand-painted" claims were struck** so that it
+  describes what was built, rather than adding a texture. This was one of the two
+  options the reviewer offered.
+
+**[EXECUTED]**:
+
+```
+contrast   17 pages, 208 text/background pairs, 0 WCAG AA failures, lowest 4.32:1
+overflow   14 pages x 360/768/1440px: no page scrolls sideways
+           (the admin nav scrolls inside its own bar at 360px, by design)
+requests   21 page/viewport captures: 0 console errors, 0 failed or 4xx/5xx requests
+detector   1 finding (an empty img src), fixed; the detector then returned []
+tests      backend 119 passed (was 91), frontend 45 passed (was 32)
+api        25 endpoints (was 19); alembic check: no drift
+```

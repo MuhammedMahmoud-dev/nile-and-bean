@@ -2,13 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reviews - Nile &amp; Bean Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reviews, Nile &amp; Bean admin</title>
     <meta name="robots" content="noindex" />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0b1a3d" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/fonts.css" />
     <link rel="stylesheet" href="css/styles.css" />
     <link rel="stylesheet" href="css/admin.css" />
 
@@ -19,31 +18,50 @@
   </head>
 
   <body class="admin-body">
-    <nav class="admin-navbar">
-      <div class="logo">Nile &amp; Bean Admin</div>
-      <ul>
-        <li><a href="admin.html">Dashboard</a></li>
-        <li><a href="index.html">Shop</a></li>
-        <li><a href="logout.html">Sign out</a></li>
-      </ul>
-    </nav>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="demo-strip"><strong>Portfolio demo.</strong> Admin area of a simulated shop.</div>
 
-    <main class="admin-container">
-      <h1>View Reviews</h1>
-      <p class="admin-intro">Customer reviews. Deleting one is permanent.</p>
+    <header class="admin-bar on-dark">
+      <div class="wrap admin-bar__inner">
+        <a class="brand plate" href="admin.html" aria-label="Nile and Bean admin, dashboard">
+          <span class="brand__ar" lang="ar" dir="rtl">النيل والبُن</span>
+          <span class="brand__en">NILE &amp; BEAN</span>
+        </a>
+        <span class="admin-bar__role">STAFF</span>
+        <nav class="admin-nav" aria-label="Admin">
+          <ul>
+            <li><a href="admin.html">Dashboard</a></li>
+            <li><a href="view-orders.html">Orders</a></li>
+            <li><a href="update-product.html">Products</a></li>
+            <li><a href="manage-users.html">Users</a></li>
+            <li><a href="view-reviews.html" aria-current="page">Reviews</a></li>
+            <li><a href="view-messages.html">Messages</a></li>
+            <li><a href="index.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#store"></use></svg> Shop</a></li>
+            <li><a href="logout.html"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#logout"></use></svg> Sign out</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
-      <p class="admin-status" id="reviewsStatus" hidden></p>
+    <main id="main" class="wrap admin-container">
+      <div class="sign-heading">
+        <span class="ar" lang="ar" dir="rtl">التقييمات</span>
+        <h1>Reviews</h1>
+      </div>
+      <p class="admin-intro">These are seeded demo reviews, not real customers. Deleting one is permanent.</p>
 
+      <p class="admin-status" id="reviewsStatus" role="status" hidden></p>
       <div class="table-scroll">
         <table class="admin-table" id="reviewsTable">
+          <caption class="visually-hidden">All reviews</caption>
           <thead>
             <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Product</th>
-            <th>Rating</th>
-            <th>Comment</th>
-            <th>Actions</th>
+              <th scope="col">ID</th>
+              <th scope="col">Customer</th>
+              <th scope="col">Product</th>
+              <th scope="col">Rating</th>
+              <th scope="col">Comment</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -53,7 +71,7 @@
     </main>
 
     <footer class="admin-footer">
-      <p>&copy; <span id="currentYear">2025</span> Nile &amp; Bean. All rights reserved.</p>
+      &copy; <span id="currentYear">2026</span> Nile &amp; Bean, a portfolio demo.
     </footer>
 
     <script src="js/admin.js"></script>

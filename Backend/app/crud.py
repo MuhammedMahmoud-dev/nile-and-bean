@@ -155,12 +155,21 @@ def unit_price(product: models.Product, size: str | None, extras: list[str]) -> 
     return money(total)
 
 
-def validate_milk(product: models.Product, milk: str | None) -> None:
-    if milk is None:
+def _validate_choice(product: models.Product, key: str, label: str, value: str | None) -> None:
+    """Free choices (milk, sugar) must still be ones the product offers."""
+    if value is None:
         return
-    choices = (product.options or {}).get("milk") or []
-    if milk not in choices:
-        raise PricingError(f"{product.name} has no milk option {milk!r}")
+    choices = (product.options or {}).get(key) or []
+    if value not in choices:
+        raise PricingError(f"{product.name} has no {label} option {value!r}")
+
+
+def validate_milk(product: models.Product, milk: str | None) -> None:
+    _validate_choice(product, "milk", "milk", milk)
+
+
+def validate_sugar(product: models.Product, sugar: str | None) -> None:
+    _validate_choice(product, "sugar", "sugar", sugar)
 
 
 # ---------------------------------------------------------------------------
@@ -185,6 +194,7 @@ def create_order(db: Session, user: models.User, data: schemas.OrderCreate) -> m
             raise PricingError(f"{product.name} is not currently available")
 
         validate_milk(product, line.milk)
+        validate_sugar(product, line.sugar)
         price = unit_price(product, line.size, line.extras)
         line_total = money(price * line.quantity)
         subtotal += line_total
@@ -197,6 +207,7 @@ def create_order(db: Session, user: models.User, data: schemas.OrderCreate) -> m
                 line_total=line_total,
                 size=line.size,
                 milk=line.milk,
+                sugar=line.sugar,
                 extras=line.extras or None,
                 special_instructions=line.special_instructions,
             )

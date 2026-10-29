@@ -67,6 +67,7 @@ class Token(BaseModel):
 class ProductBase(BaseModel):
     slug: Annotated[str, Field(min_length=1, max_length=80, pattern=r"^[a-z0-9-]+$")]
     name: Annotated[str, Field(min_length=1, max_length=120)]
+    name_ar: Annotated[str | None, Field(default=None, max_length=120)]
     image: Annotated[str | None, Field(default=None, max_length=500)]
     price: Annotated[decimal.Decimal, Field(gt=0, max_digits=10, decimal_places=2)]
     category: Annotated[str, Field(min_length=1, max_length=40)]
@@ -86,6 +87,7 @@ class ProductUpdate(BaseModel):
     """Every field optional: this backs a PATCH-style partial update."""
 
     name: Annotated[str | None, Field(default=None, min_length=1, max_length=120)]
+    name_ar: Annotated[str | None, Field(default=None, max_length=120)]
     image: Annotated[str | None, Field(default=None, max_length=500)]
     price: Annotated[decimal.Decimal | None, Field(default=None, gt=0, max_digits=10, decimal_places=2)]
     category: Annotated[str | None, Field(default=None, min_length=1, max_length=40)]
@@ -115,6 +117,7 @@ class OrderItemIn(BaseModel):
     quantity: Annotated[int, Field(ge=1, le=99)]
     size: Annotated[str | None, Field(default=None, max_length=40)]
     milk: Annotated[str | None, Field(default=None, max_length=40)]
+    sugar: Annotated[str | None, Field(default=None, max_length=40)]
     extras: Annotated[list[str], Field(default_factory=list, max_length=20)]
     special_instructions: Annotated[str | None, Field(default=None, max_length=500)]
 
@@ -162,6 +165,7 @@ class OrderItemOut(BaseModel):
     line_total: decimal.Decimal
     size: str | None
     milk: str | None
+    sugar: str | None = None
     extras: list[str] | None
     special_instructions: str | None
     product_name: str | None = None
@@ -216,3 +220,41 @@ class ReviewOut(BaseModel):
         if not 1 <= v <= 5:
             raise ValueError("rating must be between 1 and 5")
         return v
+
+
+class PasswordResetOut(BaseModel):
+    """Returned once, to the administrator who performed the reset.
+
+    There is no email, so the temporary password is handed to the admin to pass
+    on. It is never stored in plain text and cannot be retrieved again.
+    """
+
+    user_id: int
+    username: str
+    temporary_password: str
+
+
+# ---------------------------------------------------------------------------
+# Contact messages
+# ---------------------------------------------------------------------------
+
+
+class MessageCreate(BaseModel):
+    name: Annotated[str, Field(min_length=1, max_length=120)]
+    email: Email
+    body: Annotated[str, Field(min_length=1, max_length=4000)]
+
+
+class MessageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+    body: str
+    is_read: bool
+    created_at: dt.datetime
+
+
+class MessageUpdate(BaseModel):
+    is_read: bool
